@@ -1,0 +1,41 @@
+<!--
+  Project: Custom New Tab - Liquid Glass + Fluid Grid
+  Features:
+  - 取用瀏覽記錄（需要 history 權限）
+  - 依常見 workflow 類別分類：AWS、GitLab、Figma、ClickUp、Google Docs/Sheets/Slides/Calendar
+  - 將標題與連結列出，支援快速搜尋與固定（pin）
+  - Fluid grid + Liquid glass style UI
+  - 可設定每個類別顯示的項目數量
+-->
+
+<!-- manifest.json -->
+
+
+<!--
+  說明：
+  這個 artifact 內含 manifest.json 與 newtab.html 的完整內容。
+  實際使用時，請將以下檔案建立在專案資料夾：
+
+  /manifest.json        <- 將上方 manifest-json 腳本的 JSON 內容存為檔案
+  /newtab.html          <- 將 newtab-html 模板內文存為檔案
+  /icons/icon16.png, icon48.png, icon128.png  <- 可自備任意圖示
+
+  步驟：
+  1) 建資料夾，例如 custom-newtab/
+  2) 建立 manifest.json（從上面 manifest-json 區塊複製 JSON）
+  3) 建立 newtab.html（從上面 newtab-html 區塊複製 HTML）
+  4) 準備 icons/ 圖示（可暫時用空白檔替代）
+  5) Chrome → 擴充功能 → 開發人員模式 → 載入未封裝項目 → 指到 custom-newtab/
+  6) 開新分頁驗證效果；點「同步瀏覽記錄」即可讀取，並會自動分類顯示。
+
+  權限與注意：
+  - 需要 "history" 權限才能讀取瀏覽記錄。
+  - 所有設定（顯示數量、時間範圍、固定 pin）都存於 chrome.storage.local。
+  - 若公司政策限制 history 權限，可改為從書籤（bookmarks）或固定清單來源讀取。
+
+  客製化方向：
+  - 類別規則在 CATEGORY_RULES，可追加規則或用正則調整。
+  - UI 採 fluid grid（CSS columns），可改為 CSS grid masonry（需實驗性）或 JS Masonry。
+  - Liquid glass 效果來自半透明漸層、邊框、背後動態 blobs 與 backdrop-filter: blur。
+  - 排序使用 visitCount + recency 的啟發式分數，可依需求調整 rankScore()。
+-->

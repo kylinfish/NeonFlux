@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Custom New Tab - Liquid Glass",
+  "version": "1.0.0",
+  "description": "A customizable new tab page that categorizes frequently visited links by workflow with a liquid glass fluid grid UI.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": [
+    "history",
+    "storage"
+  ],
+  "icons": {
+  },
+  "action": {
+    "default_title": "Custom New Tab"
+  }
+}
