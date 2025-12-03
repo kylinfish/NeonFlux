@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
   perCategoryLimit: 12,
   recentDays: 60,
   sortBy: 'latest', // 'latest' | 'smart'
-  ui: { fixHeightEnabled: true, maxVisiblePerGroup: 5, colCount: 3 },
+  ui: { fixHeightEnabled: true, colCount: 3 },
   pinned: {},
   categories: defaultCategories()
 };
@@ -51,7 +51,7 @@ const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
 const $colCountSelect = document.getElementById('colCountSelect');
 const $fixHeightCheckbox = null;
-const $maxVisibleInput = document.getElementById('maxVisibleInput');
+const $maxVisibleInput = null;
 const $categoriesTextarea = document.getElementById('categoriesTextarea');
 const $resetCategoriesBtn = document.getElementById('resetCategoriesBtn');
 const $saveCategoriesBtn = document.getElementById('saveCategoriesBtn');
@@ -63,7 +63,7 @@ const $saveCategoriesUIButton = document.getElementById('saveCategoriesUIButton'
 
 const $focusDialog = document.getElementById('focusDialog');
 const $focusList = document.getElementById('focusList');
-const $focusTitle = document.getElementById('focusTitle');
+const $focusTitle = null;
 const $focusDot = document.getElementById('focusDot');
 const $focusCloseBtn = document.getElementById('focusCloseBtn');
 
@@ -72,6 +72,7 @@ let STATE = {
   items: [], // 原始歷史：{title, url, lastVisitTime, visitCount}
   filtered: [], // 過濾後（符合分類）
   cats: {}, // 最新一次 categorize 結果
+  focusKey: null,
 };
 
 // Storage helpers（含深度合併）
@@ -96,7 +97,7 @@ function loadSettings() {
       // 若缺 categories 或為空，補上預設
       if (!Array.isArray(s.categories) || s.categories.length === 0) s.categories = defaultCategories();
       // 兼容舊版（沒有 ui/sortBy）
-      if (!s.ui) s.ui = { fixHeightEnabled: true, maxVisiblePerGroup: 5, colCount: 3 };
+      if (!s.ui) s.ui = { fixHeightEnabled: true, colCount: 3 };
       if (!s.sortBy) s.sortBy = 'latest';
       resolve(s);
     });
@@ -397,7 +398,7 @@ function renderGrid(cats, query='') {
     const $list = card.querySelector('.list');
     // 固定高度永遠啟用：最多顯示 N 筆，溢位滾動；若實際 < N，則高度自然收縮
     {
-      const n = Math.max(1, Number(STATE.settings.ui.maxVisiblePerGroup||5));
+      const n = Math.max(1, Number(STATE.settings.perCategoryLimit || 5));
       $list.style.maxHeight = `calc(var(--row-h) * ${n})`;
       $list.style.overflow = 'auto';
     }
@@ -442,7 +443,7 @@ async function init() {
   if ($sortSelect) $sortSelect.value = STATE.settings.sortBy || 'latest';
   if ($colCountSelect) $colCountSelect.value = String(STATE.settings.ui.colCount || 3);
   if ($fixHeightCheckbox) $fixHeightCheckbox.checked = !!STATE.settings.ui.fixHeightEnabled;
-  if ($maxVisibleInput) $maxVisibleInput.value = STATE.settings.ui.maxVisiblePerGroup || 5;
+
   if ($categoriesTextarea) $categoriesTextarea.value = JSON.stringify(STATE.settings.categories, null, 2);
   if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
   applyColumnCount(STATE.settings.ui.colCount || 3);
@@ -473,6 +474,12 @@ async function init() {
 
   // 設定開關
   $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
+  // 點擊對話框外的空白區關閉
+  $settingsDialog.addEventListener('click', (e) => {
+    const rect = $settingsDialog.getBoundingClientRect();
+    const inDialog = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+    if (!inDialog) $settingsDialog.close('cancel');
+  });
 
   // 欄位數即時變更
   $colCountSelect?.addEventListener('change', (e) => {
@@ -575,11 +582,11 @@ async function init() {
   // 設定套用（關閉時觸發）
   $settingsDialog.addEventListener('close', async () => {
     if ($settingsDialog.returnValue === 'confirm') {
-      const perCategoryLimit = Math.max(5, Math.min(200, parseInt($limitInput.value || 12, 10)));
+      const perCategoryLimit = Math.max(5, Math.min(100, parseInt($limitInput.value || 12, 10)));
       const recentDays = Math.max(1, Math.min(365, parseInt($daysInput.value || 60, 10)));
       const sortBy = ($sortSelect?.value === 'smart') ? 'smart' : 'latest';
       const colCount = Math.max(1, Math.min(4, parseInt($colCountSelect?.value || 3, 10)));
-      const maxVisible = Math.max(3, Math.min(20, parseInt($maxVisibleInput.value || 5, 10)));
+
 
       // 優先採用 UI 版本的分類設定
       try {
@@ -600,7 +607,7 @@ async function init() {
       STATE.settings.recentDays = recentDays;
       STATE.settings.sortBy = sortBy;
       STATE.settings.ui.colCount = colCount;
-      STATE.settings.ui.maxVisiblePerGroup = maxVisible;
+
 
       await saveSettings(STATE.settings);
       applyColumnCount(colCount);
@@ -641,9 +648,9 @@ async function init() {
     const active = !!STATE.settings.pinned[url];
     if (active) delete STATE.settings.pinned[url]; else STATE.settings.pinned[url] = true;
     await saveSettings(STATE.settings);
-    const title = $focusTitle?.textContent || '';
+    const key = STATE.focusKey;
     const order = (STATE.settings.categories || []).filter(c => c.enabled !== false);
-    const cat = order.find(c => c.label === title);
+    const cat = order.find(c => c.key === key);
     if (cat) {
       const list = getCategoryFullList(cat.key);
       renderListItems($focusList, list, { catIconUrl: cat.iconUrl });
@@ -658,7 +665,7 @@ function openFocus(key) {
   const order = (STATE.settings.categories || []).filter(c => c.enabled !== false);
   const cat = order.find(c => c.key === key);
   if (!cat) return;
-  $focusTitle.textContent = cat.label;
+  STATE.focusKey = key;
   // dot 顏色沿用 key class 寫在 style 上
   const temp = document.createElement('div');
   temp.className = `card ${cat.key}`;

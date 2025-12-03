@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Custom New Tab - Liquid Glass",
+  "name": "NeonFlux",
   "version": "1.0.0",
   "description": "A customizable new tab page that categorizes frequently visited links by workflow with a liquid glass fluid grid UI.",
   "chrome_url_overrides": {
@@ -11,8 +11,17 @@
     "storage"
   ],
   "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   },
   "action": {
-    "default_title": "Custom New Tab"
+    "default_title": "NeonFlux",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png"
+    }
   }
 }

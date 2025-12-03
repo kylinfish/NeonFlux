@@ -3,10 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>My Workflow Start</title>
+    <title>NeonFlux</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- App icons -->
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="icon" type="image/png" href="icon_white.png" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="icon.png">
     <style>
       :root{
         --bg: #0b0f14;
@@ -75,10 +79,14 @@
 
       .title { display: flex; align-items: center; gap: 14px; }
       .logo {
-        width: 36px; height: 36px; border-radius: 12px;
+        width: 48px; height: 48px; border-radius: 12px;
         background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
         box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 16px rgba(0,0,0,0.25);
         backdrop-filter: blur(var(--blur));
+      }
+      .logo img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 10px; }
+      @media (prefers-color-scheme: dark) {
+        .logo img { content: url('icon.png'); }
       }
       h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
       .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -113,6 +121,7 @@
         backdrop-filter: blur(var(--blur));
       }
       .btn:hover { background: var(--glass-strong); }
+      .cat-delete, .remove-matcher { border-color:#bd6b6b ;}
 
       main {
         position: absolute; inset: 90px 0 0 0; overflow: auto; padding: 8px 22px 24px;
@@ -204,15 +213,15 @@
 
     <header>
       <div class="title">
-        <div class="logo"></div>
+        <div class="logo"><img src="icon.png" alt="NeonFlux logo"></div>
         <div>
-          <h1>My Workflow Start</h1>
-          <div class="sub">常用工作分類 • Liquid Glass • New Tab</div>
+          <h1>NeonFlux</h1>
+          <div class="sub">自定義工作分類 • Liquid Glass</div>
         </div>
       </div>
       <div class="controls">
         <div class="search">
-          <input id="search" type="search" placeholder="搜尋標題或網址 ( / 觸發 )" autocomplete="off" />
+          <input id="search" type="search" placeholder="搜尋標題或網址" autocomplete="off" />
           <div class="kbd">/</div>
         </div>
 
@@ -223,7 +232,7 @@
 
     <main>
       <div id="grid" class="grid"></div>
-      <div class="footer">由瀏覽記錄自動分類 · 本機儲存 · gpt-5</div>
+      <div class="footer">由瀏覽記錄自動分類 · 本機儲存 · 隱私優先</div>
     </main>
 
     <!-- Settings modal -->
@@ -234,8 +243,8 @@
           <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
             <legend style="color:var(--muted);">一般</legend>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>每個分類顯示數量（上限）</span>
-              <input id="limitInput" type="number" min="5" max="200" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+              <span>分類顯示數量（上限）</span>
+              <input id="limitInput" type="number" min="5" max="100" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
             </label>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
               <span>僅顯示近 N 天</span>
@@ -251,11 +260,17 @@
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
               <span>每列分類數（欄位數）</span>
               <select id="colCountSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+                <option value="1">1 欄</option>
                 <option value="2">2 欄</option>
                 <option value="3">3 欄</option>
                 <option value="4">4 欄</option>
               </select>
             </label>
+
+            <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+              <button class="btn" style="width:100px" value="cancel">取消</button>
+              <button class="btn" style="width:100px" value="confirm">儲存</button>
+            </div>
           </fieldset>
 
           <details>
@@ -273,10 +288,6 @@
 
             </div>
           </details>
-        </div>
-        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
-          <button class="btn" value="cancel">取消</button>
-          <button class="btn" value="confirm">儲存</button>
         </div>
       </form>
     </dialog>
