@@ -26,6 +26,7 @@
         --gcal: 217, 90%, 60%;
         --radius: 16px;
         --blur: 18px;
+        --row-h: 54px; /* 單列高度估值，供 fix-height 使用 */
       }
       * { box-sizing: border-box; }
       html, body {
@@ -72,9 +73,7 @@
         z-index: 2;
       }
 
-      .title {
-        display: flex; align-items: center; gap: 14px;
-      }
+      .title { display: flex; align-items: center; gap: 14px; }
       .logo {
         width: 36px; height: 36px; border-radius: 12px;
         background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
@@ -84,12 +83,8 @@
       h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
       .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
-      .controls {
-        display: flex; gap: 10px; align-items: center;
-      }
-      .search {
-        position: relative;
-      }
+      .controls { display: flex; gap: 10px; align-items: center; }
+      .search { position: relative; }
       .search input {
         width: 42vw; min-width: 260px; max-width: 680px;
         padding: 12px 38px 12px 14px;
@@ -124,10 +119,7 @@
       }
 
       /* Fluid masonry-like grid using CSS columns */
-      .grid {
-        column-width: 320px;
-        column-gap: 16px;
-      }
+      .grid { column-width: 320px; column-gap: 16px; }
       @media (max-width: 1200px) { .grid { column-width: 300px; } }
       @media (max-width: 900px) { .grid { column-width: 280px; } }
       @media (max-width: 700px) { .grid { column-width: 260px; } }
@@ -145,9 +137,7 @@
         border-radius: 18px;
         padding: 14px;
         margin: 0 0 16px 0;
-        box-shadow:
-          inset 0 1px 0 rgba(255,255,255,0.08),
-          0 10px 30px rgba(0,0,0,0.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.18);
         backdrop-filter: blur(calc(var(--blur) * 0.9));
         position: relative;
         overflow: hidden;
@@ -158,69 +148,25 @@
         background: radial-gradient(200px 120px at 0% -10%, rgba(255,255,255,0.18), transparent 60%);
         pointer-events: none;
       }
-      .card-header {
-        display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;
-      }
-      .card-title {
-        display: flex; align-items: center; gap: 10px;
-        font-weight: 700; letter-spacing: 0.2px;
-      }
+      .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+      .card-title { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.2px; }
       .dot { width: 10px; height: 10px; border-radius: 50%; }
       .tag { color: var(--muted); font-size: 12px; }
 
-      .list {
-        display: grid; gap: 8px; margin-top: 10px;
-      }
-      .item {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-        align-items: center;
-        padding: 10px 10px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        background: rgba(255,255,255,0.04);
-        transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
-      }
-      .item:hover {
-        background: rgba(255,255,255,0.08);
-        border-color: var(--stroke);
-      }
-      .meta {
-        display: flex; gap: 8px; align-items: center; min-width: 0;
-      }
-      .favicon {
-        width: 16px; height: 16px; border-radius: 4px;
-        background: rgba(255,255,255,0.2);
-        overflow: hidden; flex: 0 0 auto;
-      }
+      .list { display: grid; gap: 8px; margin-top: 10px; }
+      .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px 10px; border-radius: 12px; border: 1px solid transparent; background: rgba(255,255,255,0.04); transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease; }
+      .item:hover { background: rgba(255,255,255,0.08); border-color: var(--stroke); }
+      .meta { display: flex; gap: 8px; align-items: center; min-width: 0; }
+      .favicon { width: 16px; height: 16px; border-radius: 4px; background: rgba(255,255,255,0.2); overflow: hidden; flex: 0 0 auto; }
       .favicon img { width: 100%; height: 100%; display: block; }
-      .titleline {
-        display: block; font-size: 13px; color: var(--text);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      }
-      .urlline {
-        display: block; font-size: 11px; color: var(--muted);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      }
-      .actions {
-        display: flex; gap: 6px; align-items: center;
-      }
-      .chip {
-        font-size: 11px; color: var(--muted);
-        padding: 3px 6px; border: 1px solid var(--stroke);
-        border-radius: 8px; background: rgba(0,0,0,0.1);
-      }
-      .pin {
-        width: 26px; height: 26px; display: grid; place-items: center;
-        border-radius: 8px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.05);
-        cursor: pointer; color: #a8b6c7;
-      }
+      .titleline { display: block; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .urlline { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .actions { display: flex; gap: 6px; align-items: center; }
+      .chip { font-size: 11px; color: var(--muted); padding: 3px 6px; border: 1px solid var(--stroke); border-radius: 8px; background: rgba(0,0,0,0.1); }
+      .pin { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.05); cursor: pointer; color: #a8b6c7; }
       .pin.active { color: var(--accent); border-color: rgba(124,195,255,0.7); background: rgba(124,195,255,0.08); }
 
-      .footer {
-        text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0 28px;
-      }
+      .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0 28px; }
 
       /* Category color accents */
       .aws .dot { background: hsl(var(--aws)); }
@@ -234,13 +180,17 @@
 
       /* Scrollbar */
       main::-webkit-scrollbar { height: 10px; width: 10px; }
-      main::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.15);
-        border-radius: 10px;
-        border: 2px solid rgba(0,0,0,0);
-        background-clip: padding-box;
-      }
+      main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; border: 2px solid rgba(0,0,0,0); background-clip: padding-box; }
       main::-webkit-scrollbar-track { background: transparent; }
+
+      /* Focus dialog */
+      #focusDialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); }
+      #focusDialog { border: 1px solid var(--stroke); border-radius: 16px; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); width: min(1100px, 96vw); max-height: 90vh; }
+      .focus-wrap { display: grid; grid-template-rows: auto 1fr; height: 90vh; }
+      .focus-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--stroke); }
+      .focus-title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+      .focus-body { padding: 12px 16px 16px; overflow: auto; }
+      .focus-body .item .titleline { white-space: normal; }
     </style>
   </head>
   <body>
@@ -263,6 +213,7 @@
           <input id="search" type="search" placeholder="搜尋標題或網址 ( / 觸發 )" autocomplete="off" />
           <div class="kbd">/</div>
         </div>
+        <button class="btn" id="toggleFixBtn" title="切換固定高度模式">固定高度: 開</button>
         <button class="btn" id="refreshBtn">同步瀏覽記錄</button>
         <button class="btn" id="settingsBtn">設定</button>
       </div>
@@ -273,25 +224,77 @@
       <div class="footer">由瀏覽記錄自動分類 · 本機儲存 · gpt-5</div>
     </main>
 
-    <!-- Settings modal (inline simple) -->
+    <!-- Settings modal -->
     <dialog id="settingsDialog">
-      <form method="dialog" style="min-width: 320px; max-width: 520px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
+      <form method="dialog" style="min-width: 340px; max-width: 720px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
         <h3 style="margin:0 0 10px 0;">設定</h3>
-        <div style="display:grid; gap:10px;">
-          <label style="display:flex; justify-content:space-between; align-items:center;">
-            <span>每個分類顯示數量</span>
-            <input id="limitInput" type="number" min="3" max="50" step="1" style="width:90px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-          </label>
-          <label style="display:flex; justify-content:space-between; align-items:center;">
-            <span>僅顯示近 N 天</span>
-            <input id="daysInput" type="number" min="1" max="365" step="1" style="width:90px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-          </label>
+        <div style="display:grid; gap:12px;">
+          <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
+            <legend style="color:var(--muted);">一般</legend>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span>每個分類顯示數量（上限）</span>
+              <input id="limitInput" type="number" min="5" max="200" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+            </label>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span>僅顯示近 N 天</span>
+              <input id="daysInput" type="number" min="1" max="365" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+            </label>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span>排序模式</span>
+              <select id="sortSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+                <option value="latest">最新在前</option>
+                <option value="smart">智慧排序</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
+            <legend style="color:var(--muted);">固定高度模式</legend>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span>啟用固定高度</span>
+              <input id="fixHeightCheckbox" type="checkbox" />
+            </label>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span>每群組可見筆數（高度上限）</span>
+              <input id="maxVisibleInput" type="number" min="3" max="20" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+            </label>
+          </fieldset>
+
+          <details>
+            <summary style="cursor:pointer; color:var(--muted);">分類管理（進階）</summary>
+            <div style="display:grid; gap:8px; margin-top:8px;">
+              <small style="color:var(--muted);">以 JSON 編輯分類（key/label/enabled/matchers）。matchers 支援 type: domain | prefix | regex。</small>
+              <textarea id="categoriesTextarea" style="min-height:200px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size:12px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text); padding:8px;"></textarea>
+              <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn" id="resetCategoriesBtn" type="button">重置為預設</button>
+                <button class="btn" id="saveCategoriesBtn" type="button">儲存分類</button>
+              </div>
+            </div>
+          </details>
         </div>
         <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
           <button class="btn" value="cancel">取消</button>
           <button class="btn" value="confirm">儲存</button>
         </div>
       </form>
+    </dialog>
+
+    <!-- Focus dialog (group full view) -->
+    <dialog id="focusDialog">
+      <div class="focus-wrap">
+        <div class="focus-header">
+          <div class="focus-title">
+            <span class="dot" id="focusDot" style="width:12px;height:12px;border-radius:50%;"></span>
+            <span id="focusTitle"></span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn" id="focusCloseBtn">返回</button>
+          </div>
+        </div>
+        <div class="focus-body">
+          <div id="focusList" class="list"></div>
+        </div>
+      </div>
     </dialog>
 
     <script src="./main.js" defer></script>
