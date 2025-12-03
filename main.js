@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
   perCategoryLimit: 12,
   recentDays: 60,
   sortBy: 'latest', // 'latest' | 'smart'
-  ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false },
+  ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false, privacyCurtainLocked: false },
   pinned: {},
   categories: defaultCategories()
 };
@@ -100,6 +100,17 @@ function loadSettings() {
       // 兼容舊版（沒有 ui/sortBy）
       if (!s.ui) s.ui = { fixHeightEnabled: true, colCount: 3 };
       if (!s.sortBy) s.sortBy = 'latest';
+      
+      // 確保有 privacyCurtainLocked 屬性
+      if (typeof s.ui.privacyCurtainLocked === 'undefined') {
+        s.ui.privacyCurtainLocked = false;
+      }
+      
+      // 如果門簾被鎖定，則每次初始化時都啟用門簾
+      if (s.ui.privacyCurtainLocked) {
+        s.ui.privacyCurtainEnabled = true;
+      }
+      
       resolve(s);
     });
   });
@@ -393,10 +404,14 @@ function renderGrid(cats, query='') {
           <button class="btn focus-btn" type="button" data-key="${cat.key}" title="聚焦檢視">⛶</button>
         </div>
       </div>
-      <div class="list"></div>
+      <div class="list-container">
+        <div class="list"></div>
+      </div>
     `;
 
+    const $listContainer = card.querySelector('.list-container');
     const $list = card.querySelector('.list');
+    
     // 固定高度永遠啟用：最多顯示 N 筆，溢位滾動；若實際 < N，則高度自然收縮
     {
       const n = Math.max(1, Number(STATE.settings.perCategoryLimit || 5));
@@ -405,10 +420,13 @@ function renderGrid(cats, query='') {
     }
 
     renderListItems($list, filtered, { catIconUrl: cat.iconUrl });
+    
+    // 將門簾加到 list-container 而非 list 內部
     if (STATE.settings.ui?.privacyCurtainEnabled) {
       const curtain = makeCurtain();
-      $list.appendChild(curtain);
+      $listContainer.appendChild(curtain);
     }
+    
     $grid.appendChild(card);
   }
 }
@@ -440,8 +458,19 @@ function updateFixToggleLabel() {
 }
 
 function updateCurtainBtnLabel() {
-  const on = !!STATE.settings.ui?.privacyCurtainEnabled;
-  if ($curtainBtn) $curtainBtn.textContent = `門簾: ${on ? '開' : '關'}`;
+  // 根據門簾狀態和鎖定狀態決定顯示的圖標
+  const curtainEnabled = !!STATE.settings.ui?.privacyCurtainEnabled;
+  const curtainLocked = !!STATE.settings.ui?.privacyCurtainLocked;
+  
+  if ($curtainBtn) {
+    if (curtainLocked) {
+      $curtainBtn.textContent = '🔒'; // 鎖定狀態
+      $curtainBtn.title = '隱私門簾（已鎖定 - 每次開啟都會啟用）';
+    } else {
+      $curtainBtn.textContent = curtainEnabled ? '🔒' : '🔓';
+      $curtainBtn.title = `隱私門簾（投影用）- 目前${curtainEnabled ? '開啟' : '關閉'}`;
+    }
+  }
 }
 
 function makeCurtain() {
@@ -454,19 +483,42 @@ function makeCurtain() {
   div.addEventListener('click', (e) => { e.stopPropagation(); openAllCurtains(); });
   return div;
 }
+
 function applyCurtainToAll() {
-  document.querySelectorAll('#grid .card .list').forEach(($l) => {
+  document.querySelectorAll('#grid .card .list-container').forEach(($l) => {
     if (!$l.querySelector(':scope > .curtain')) $l.appendChild(makeCurtain());
   });
 }
+
 function removeCurtainFromAll() {
-  document.querySelectorAll('#grid .card .list .curtain').forEach(el => el.remove());
+  document.querySelectorAll('#grid .card .list-container .curtain').forEach(el => el.remove());
 }
+
 function openAllCurtains() {
-  STATE.settings.ui.privacyCurtainEnabled = false;
-  try { saveSettings(STATE.settings); } catch {}
-  removeCurtainFromAll();
-  updateCurtainBtnLabel();
+  // 如果門簾處於鎖定狀態，則打開門簾但不改變設定
+  if (STATE.settings.ui.privacyCurtainLocked) {
+    removeCurtainFromAll();
+    // 短暫顯示消息
+    const msg = document.createElement('div');
+    msg.textContent = '門簾已暫時打開，但下次載入時將重新啟用';
+    msg.style.position = 'fixed';
+    msg.style.bottom = '20px';
+    msg.style.left = '50%';
+    msg.style.transform = 'translateX(-50%)';
+    msg.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    msg.style.color = '#fff';
+    msg.style.padding = '10px 20px';
+    msg.style.borderRadius = '8px';
+    msg.style.zIndex = '9999';
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 3000);
+  } else {
+    // 如果不是鎖定狀態，則正常關閉門簾並更新設定
+    STATE.settings.ui.privacyCurtainEnabled = false;
+    try { saveSettings(STATE.settings); } catch {}
+    removeCurtainFromAll();
+    updateCurtainBtnLabel();
+  }
 }
 
 async function init() {
@@ -501,9 +553,9 @@ async function init() {
 
   // 同步
   $refreshBtn.addEventListener('click', async () => {
-    $refreshBtn.disabled = true; $refreshBtn.textContent = '同步中...';
+    $refreshBtn.disabled = true; 
     try { await refreshAndRender(); }
-    finally { $refreshBtn.disabled = false; $refreshBtn.textContent = '同步瀏覽記錄'; }
+    finally { $refreshBtn.disabled = false; }
   });
 
   // 固定高度永遠開啟（移除切換）
@@ -511,13 +563,21 @@ async function init() {
   // 設定開關
   $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
 
-  // 門簾開關按鈕
+  // 門簾開關按鈕 - 修改為切換鎖定/非鎖定狀態
   $curtainBtn?.addEventListener('click', async () => {
-    STATE.settings.ui.privacyCurtainEnabled = !STATE.settings.ui.privacyCurtainEnabled;
+    // 切換鎖定狀態
+    STATE.settings.ui.privacyCurtainLocked = !STATE.settings.ui.privacyCurtainLocked;
+    
+    // 如果切換為鎖定狀態，則同時啟用門簾
+    if (STATE.settings.ui.privacyCurtainLocked) {
+      STATE.settings.ui.privacyCurtainEnabled = true;
+      applyCurtainToAll();
+    }
+    
     await saveSettings(STATE.settings);
     updateCurtainBtnLabel();
-    if (STATE.settings.ui.privacyCurtainEnabled) applyCurtainToAll(); else removeCurtainFromAll();
   });
+  
   // 點擊對話框外的空白區關閉
   $settingsDialog.addEventListener('click', (e) => {
     const rect = $settingsDialog.getBoundingClientRect();

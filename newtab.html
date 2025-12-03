@@ -164,7 +164,18 @@
       .dot { width: 10px; height: 10px; border-radius: 50%; }
       .tag { color: var(--muted); font-size: 12px; }
 
-      .list { display: grid; gap: 8px; margin-top: 10px; position: relative; }
+      /* 新增 list-container 作為 list 的外層容器，用於放置門簾 */
+      .list-container {
+        position: relative;
+        margin-top: 10px;
+      }
+      
+      .list { 
+        display: grid; 
+        gap: 8px; 
+        position: relative; 
+      }
+      
       /* Privacy curtain */
       .curtain {
         position: absolute; inset: 0; border-radius: 12px;
@@ -228,8 +239,8 @@
       <div class="title">
         <div class="logo"><img src="icon.png" alt="NeonFlux logo"></div>
         <div>
-          <h1>NeonFlux</h1>
-          <div class="sub">自定義工作分類 • Liquid Glass</div>
+          <h1>NeonFlux <span class="sub" style="margin-left:3px">霓虹流</span></h1> 
+          <div class="sub">自定義歷史紀錄分類</div>
         </div>
       </div>
       <div class="controls">
@@ -238,15 +249,15 @@
           <div class="kbd">/</div>
         </div>
 
-        <button class="btn" id="refreshBtn">同步瀏覽記錄</button>
-        <button class="btn" id="curtainBtn" title="隱私門簾（投影用）">門簾: 關</button>
-        <button class="btn" id="settingsBtn">設定</button>
+        <button class="btn" id="refreshBtn" title="同步瀏覽記錄">🔄</button>
+        <button class="btn" id="curtainBtn" title="隱私門簾（投影用）">🔓</button>
+        <button class="btn" id="settingsBtn" title="設定">⚙️</button>
       </div>
     </header>
 
     <main>
       <div id="grid" class="grid"></div>
-      <div class="footer">由瀏覽記錄自動分類 · 本機儲存 · 隱私優先</div>
+      <div class="footer">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</div>
     </main>
 
     <!-- Settings modal -->
