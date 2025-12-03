@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
   perCategoryLimit: 12,
   recentDays: 60,
   sortBy: 'latest', // 'latest' | 'smart'
-  ui: { fixHeightEnabled: true, colCount: 3 },
+  ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false },
   pinned: {},
   categories: defaultCategories()
 };
@@ -44,6 +44,7 @@ const $grid = document.getElementById('grid');
 const $search = document.getElementById('search');
 const $refreshBtn = document.getElementById('refreshBtn');
 const $settingsBtn = document.getElementById('settingsBtn');
+const $curtainBtn = document.getElementById('curtainBtn');
 const $toggleFixBtn = null;
 const $settingsDialog = document.getElementById('settingsDialog');
 const $limitInput = document.getElementById('limitInput');
@@ -404,6 +405,10 @@ function renderGrid(cats, query='') {
     }
 
     renderListItems($list, filtered, { catIconUrl: cat.iconUrl });
+    if (STATE.settings.ui?.privacyCurtainEnabled) {
+      const curtain = makeCurtain();
+      $list.appendChild(curtain);
+    }
     $grid.appendChild(card);
   }
 }
@@ -434,6 +439,36 @@ function updateFixToggleLabel() {
   if ($toggleFixBtn) $toggleFixBtn.textContent = `固定高度: ${on ? '開' : '關'}`;
 }
 
+function updateCurtainBtnLabel() {
+  const on = !!STATE.settings.ui?.privacyCurtainEnabled;
+  if ($curtainBtn) $curtainBtn.textContent = `門簾: ${on ? '開' : '關'}`;
+}
+
+function makeCurtain() {
+  const div = document.createElement('div');
+  div.className = 'curtain';
+  const hint = document.createElement('span');
+  hint.className = 'curtain-hint';
+  hint.textContent = '點一下以顯示';
+  div.appendChild(hint);
+  div.addEventListener('click', (e) => { e.stopPropagation(); openAllCurtains(); });
+  return div;
+}
+function applyCurtainToAll() {
+  document.querySelectorAll('#grid .card .list').forEach(($l) => {
+    if (!$l.querySelector(':scope > .curtain')) $l.appendChild(makeCurtain());
+  });
+}
+function removeCurtainFromAll() {
+  document.querySelectorAll('#grid .card .list .curtain').forEach(el => el.remove());
+}
+function openAllCurtains() {
+  STATE.settings.ui.privacyCurtainEnabled = false;
+  try { saveSettings(STATE.settings); } catch {}
+  removeCurtainFromAll();
+  updateCurtainBtnLabel();
+}
+
 async function init() {
   STATE.settings = await loadSettings();
 
@@ -448,6 +483,7 @@ async function init() {
   if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
   applyColumnCount(STATE.settings.ui.colCount || 3);
   updateFixToggleLabel();
+  updateCurtainBtnLabel();
 
   await refreshAndRender();
 
@@ -474,6 +510,14 @@ async function init() {
 
   // 設定開關
   $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
+
+  // 門簾開關按鈕
+  $curtainBtn?.addEventListener('click', async () => {
+    STATE.settings.ui.privacyCurtainEnabled = !STATE.settings.ui.privacyCurtainEnabled;
+    await saveSettings(STATE.settings);
+    updateCurtainBtnLabel();
+    if (STATE.settings.ui.privacyCurtainEnabled) applyCurtainToAll(); else removeCurtainFromAll();
+  });
   // 點擊對話框外的空白區關閉
   $settingsDialog.addEventListener('click', (e) => {
     const rect = $settingsDialog.getBoundingClientRect();

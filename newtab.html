@@ -86,7 +86,7 @@
       }
       .logo img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 10px; }
       @media (prefers-color-scheme: dark) {
-        .logo img { content: url('icon.png'); }
+        .logo img { content: url('icon_white.png'); }
       }
       h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
       .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -164,7 +164,20 @@
       .dot { width: 10px; height: 10px; border-radius: 50%; }
       .tag { color: var(--muted); font-size: 12px; }
 
-      .list { display: grid; gap: 8px; margin-top: 10px; }
+      .list { display: grid; gap: 8px; margin-top: 10px; position: relative; }
+      /* Privacy curtain */
+      .curtain {
+        position: absolute; inset: 0; border-radius: 12px;
+        background:
+          linear-gradient(180deg, rgba(10,14,20,0.60), rgba(10,14,20,0.45)),
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.50) 0 8px, rgba(0,0,0,0.70) 8px 16px);
+        backdrop-filter: blur(6px) saturate(120%);
+        -webkit-backdrop-filter: blur(6px) saturate(120%);
+        display: grid; place-items: center; cursor: pointer;
+        z-index: 2;
+      }
+      .curtain:hover { background: linear-gradient(180deg, rgba(10,14,20,0.68), rgba(10,14,20,0.52)), repeating-linear-gradient(45deg, rgba(255,255,255,0.12) 0 8px, rgba(0,0,0,0.12) 8px 16px); }
+      .curtain-hint { color: #c9d6e2; font-size: 12px; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid var(--stroke); }
       .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px 10px; border-radius: 12px; border: 1px solid transparent; background: rgba(255,255,255,0.04); transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease; }
       .item:hover { background: rgba(255,255,255,0.08); border-color: var(--stroke); }
       .meta { display: flex; gap: 8px; align-items: center; min-width: 0; }
@@ -226,6 +239,7 @@
         </div>
 
         <button class="btn" id="refreshBtn">同步瀏覽記錄</button>
+        <button class="btn" id="curtainBtn" title="隱私門簾（投影用）">門簾: 關</button>
         <button class="btn" id="settingsBtn">設定</button>
       </div>
     </header>
