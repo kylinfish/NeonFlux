@@ -44,12 +44,12 @@ const $grid = document.getElementById('grid');
 const $search = document.getElementById('search');
 const $refreshBtn = document.getElementById('refreshBtn');
 const $settingsBtn = document.getElementById('settingsBtn');
-const $toggleFixBtn = document.getElementById('toggleFixBtn');
+const $toggleFixBtn = null;
 const $settingsDialog = document.getElementById('settingsDialog');
 const $limitInput = document.getElementById('limitInput');
 const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
-const $fixHeightCheckbox = document.getElementById('fixHeightCheckbox');
+const $fixHeightCheckbox = null;
 const $maxVisibleInput = document.getElementById('maxVisibleInput');
 const $categoriesTextarea = document.getElementById('categoriesTextarea');
 const $resetCategoriesBtn = document.getElementById('resetCategoriesBtn');
@@ -109,6 +109,15 @@ function getFavicon(url) {
 }
 function getHostname(url) {
   try { return new URL(url).hostname; } catch { return ''; }
+}
+function getFallbackFavicon(url) {
+  const host = getHostname(url);
+  if (!host) return defaultIconDataUri();
+  return `https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(host)}`;
+}
+function defaultIconDataUri() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" rx="3" fill="#5b6b7c"/><path d="M8 3a5 5 0 100 10 5 5 0 000-10z" fill="#cfd8e3"/></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
 // 排序分數（智慧排序）
@@ -237,6 +246,17 @@ function renderListItems($container, list) {
         <button class="pin ${pinActive ? 'active':''}" title="固定/取消固定" type="button" data-url="${encodeURIComponent(it.url)}">📌</button>
       </div>
     `;
+    // 圖示 fallback：/favicon.ico 失敗時改用 Google S2，再失敗用內建 SVG
+    const $img = el.querySelector('.favicon img');
+    if ($img) {
+      $img.onerror = () => {
+        $img.onerror = () => {
+          $img.onerror = null;
+          $img.src = defaultIconDataUri();
+        };
+        $img.src = getFallbackFavicon(it.url);
+      };
+    }
     $container.appendChild(el);
   }
 }
@@ -265,21 +285,18 @@ function renderGrid(cats, query='') {
           <span class="tag">共 ${count} 項</span>
         </div>
         <div class="actions">
-          <button class="btn focus-btn" type="button" data-key="${cat.key}">聚焦</button>
+          <button class="btn focus-btn" type="button" data-key="${cat.key}" title="聚焦檢視">⛶</button>
         </div>
       </div>
       <div class="list"></div>
     `;
 
     const $list = card.querySelector('.list');
-    // 固定高度模式：最多顯示 N 筆，溢位滾動；若實際 < N，則高度自然收縮
-    if (STATE.settings.ui?.fixHeightEnabled) {
+    // 固定高度永遠啟用：最多顯示 N 筆，溢位滾動；若實際 < N，則高度自然收縮
+    {
       const n = Math.max(1, Number(STATE.settings.ui.maxVisiblePerGroup||5));
       $list.style.maxHeight = `calc(var(--row-h) * ${n})`;
       $list.style.overflow = 'auto';
-    } else {
-      $list.style.maxHeight = '';
-      $list.style.overflow = '';
     }
 
     renderListItems($list, filtered);
@@ -346,14 +363,7 @@ async function init() {
     finally { $refreshBtn.disabled = false; $refreshBtn.textContent = '同步瀏覽記錄'; }
   });
 
-  // Header 固定高度切換
-  $toggleFixBtn.addEventListener('click', async () => {
-    STATE.settings.ui.fixHeightEnabled = !STATE.settings.ui.fixHeightEnabled;
-    updateFixToggleLabel();
-    await saveSettings(STATE.settings);
-    const cats = categorize(STATE.filtered);
-    renderGrid(cats, $search.value);
-  });
+  // 固定高度永遠開啟（移除切換）
 
   // 設定開關
   $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
@@ -388,7 +398,6 @@ async function init() {
       const perCategoryLimit = Math.max(5, Math.min(200, parseInt($limitInput.value || 12, 10)));
       const recentDays = Math.max(1, Math.min(365, parseInt($daysInput.value || 60, 10)));
       const sortBy = ($sortSelect?.value === 'smart') ? 'smart' : 'latest';
-      const fixOn = !!$fixHeightCheckbox?.checked;
       const maxVisible = Math.max(3, Math.min(20, parseInt($maxVisibleInput.value || 5, 10)));
       // 也嘗試套用分類 JSON（若可解析）
       try {
@@ -401,7 +410,6 @@ async function init() {
       STATE.settings.perCategoryLimit = perCategoryLimit;
       STATE.settings.recentDays = recentDays;
       STATE.settings.sortBy = sortBy;
-      STATE.settings.ui.fixHeightEnabled = fixOn;
       STATE.settings.ui.maxVisiblePerGroup = maxVisible;
 
       await saveSettings(STATE.settings);

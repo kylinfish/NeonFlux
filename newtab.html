@@ -185,8 +185,8 @@
 
       /* Focus dialog */
       #focusDialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); }
-      #focusDialog { border: 1px solid var(--stroke); border-radius: 16px; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); width: min(1100px, 96vw); max-height: 90vh; }
-      .focus-wrap { display: grid; grid-template-rows: auto 1fr; height: 90vh; }
+      #focusDialog { border: 1px solid var(--stroke); border-radius: 0; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); width: 100vw; height: 100vh; max-height: none; }
+      .focus-wrap { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
       .focus-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--stroke); }
       .focus-title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
       .focus-body { padding: 12px 16px 16px; overflow: auto; }
@@ -213,7 +213,7 @@
           <input id="search" type="search" placeholder="搜尋標題或網址 ( / 觸發 )" autocomplete="off" />
           <div class="kbd">/</div>
         </div>
-        <button class="btn" id="toggleFixBtn" title="切換固定高度模式">固定高度: 開</button>
+
         <button class="btn" id="refreshBtn">同步瀏覽記錄</button>
         <button class="btn" id="settingsBtn">設定</button>
       </div>
@@ -226,7 +226,7 @@
 
     <!-- Settings modal -->
     <dialog id="settingsDialog">
-      <form method="dialog" style="min-width: 340px; max-width: 720px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
+      <form method="dialog" style="min-width: 340px; max-width: 720px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px); zoom:1.5;">
         <h3 style="margin:0 0 10px 0;">設定</h3>
         <div style="display:grid; gap:12px;">
           <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
@@ -250,10 +250,6 @@
 
           <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
             <legend style="color:var(--muted);">固定高度模式</legend>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>啟用固定高度</span>
-              <input id="fixHeightCheckbox" type="checkbox" />
-            </label>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
               <span>每群組可見筆數（高度上限）</span>
               <input id="maxVisibleInput" type="number" min="3" max="20" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
