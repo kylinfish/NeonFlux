@@ -128,10 +128,8 @@ function defaultIconDataUri() {
 
 function applyColumnCount(n){
   n = Math.max(1, Math.min(4, parseInt(n||3,10)));
-  const gap = 16;
   if ($grid) {
-    $grid.style.columnGap = gap + 'px';
-    $grid.style.columnWidth = `calc((100% - ${(n-1)*gap}px) / ${n})`;
+    $grid.style.setProperty('--col', String(n));
   }
 }
 
@@ -176,7 +174,11 @@ function renderCategoriesUI(cats=[]) {
         <input type="text" class="cat-label" value="${escapeHtml(cat.label||'')}" placeholder="分類名稱" style="flex:1 1 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
         <input type="text" class="cat-key" value="${escapeHtml(cat.key||'')}" placeholder="key（唯一）" title="僅限小寫英數與 -，需唯一" style="flex:0 0 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
         <input type="url" class="cat-icon" value="${escapeHtml(cat.iconUrl||'')}" placeholder="自訂圖示 URL" style="flex:1 1 220px; min-width:220px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-        <button type="button" class="btn cat-delete" title="刪除此分類">刪除分類</button>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn cat-up" title="上移">⬆️</button>
+          <button type="button" class="btn cat-down" title="下移">⬇️</button>
+          <button type="button" class="btn cat-delete" title="刪除此分類">刪除</button>
+        </div>
       </div>
       <div class="matchers" style="display:grid; gap:6px;">
         ${matcherRows}
@@ -530,6 +532,19 @@ async function init() {
     } else if (e.target.closest('.cat-delete')) {
       const arr = readCategoriesFromUI().filter(c => c.key !== key);
       renderCategoriesUI(arr);
+    } else if (e.target.closest('.cat-up') || e.target.closest('.cat-down')) {
+      const arr = readCategoriesFromUI();
+      const idx = arr.findIndex(c => c.key === key);
+      if (idx >= 0) {
+        const dir = e.target.closest('.cat-up') ? -1 : 1;
+        const j = idx + dir;
+        if (j >= 0 && j < arr.length) {
+          const tmp = arr[idx];
+          arr[idx] = arr[j];
+          arr[j] = tmp;
+          renderCategoriesUI(arr);
+        }
+      }
     }
   });
 
@@ -616,6 +631,24 @@ async function init() {
   });
 
   $focusCloseBtn?.addEventListener('click', () => $focusDialog.close('cancel'));
+  // 聚焦清單 pin 切換：避免開啟連結
+  $focusList?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.pin');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const url = decodeURIComponent(btn.dataset.url);
+    const active = !!STATE.settings.pinned[url];
+    if (active) delete STATE.settings.pinned[url]; else STATE.settings.pinned[url] = true;
+    await saveSettings(STATE.settings);
+    const title = $focusTitle?.textContent || '';
+    const order = (STATE.settings.categories || []).filter(c => c.enabled !== false);
+    const cat = order.find(c => c.label === title);
+    if (cat) {
+      const list = getCategoryFullList(cat.key);
+      renderListItems($focusList, list, { catIconUrl: cat.iconUrl });
+    }
+  });
   $focusDialog?.addEventListener('close', () => {
     // 關閉後不需特別動作
   });
