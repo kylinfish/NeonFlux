@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
   perCategoryLimit: 12,
   recentDays: 60,
   sortBy: 'latest', // 'latest' | 'smart'
-  ui: { fixHeightEnabled: true, maxVisiblePerGroup: 5 },
+  ui: { fixHeightEnabled: true, maxVisiblePerGroup: 5, colCount: 3 },
   pinned: {},
   categories: defaultCategories()
 };
@@ -49,11 +49,17 @@ const $settingsDialog = document.getElementById('settingsDialog');
 const $limitInput = document.getElementById('limitInput');
 const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
+const $colCountSelect = document.getElementById('colCountSelect');
 const $fixHeightCheckbox = null;
 const $maxVisibleInput = document.getElementById('maxVisibleInput');
 const $categoriesTextarea = document.getElementById('categoriesTextarea');
 const $resetCategoriesBtn = document.getElementById('resetCategoriesBtn');
 const $saveCategoriesBtn = document.getElementById('saveCategoriesBtn');
+// 分類管理（UI）
+const $categoriesUI = document.getElementById('categoriesUI');
+const $addCategoryBtn = document.getElementById('addCategoryBtn');
+const $resetCategoriesUIButton = document.getElementById('resetCategoriesUIButton');
+const $saveCategoriesUIButton = document.getElementById('saveCategoriesUIButton');
 
 const $focusDialog = document.getElementById('focusDialog');
 const $focusList = document.getElementById('focusList');
@@ -90,7 +96,7 @@ function loadSettings() {
       // 若缺 categories 或為空，補上預設
       if (!Array.isArray(s.categories) || s.categories.length === 0) s.categories = defaultCategories();
       // 兼容舊版（沒有 ui/sortBy）
-      if (!s.ui) s.ui = { fixHeightEnabled: true, maxVisiblePerGroup: 5 };
+      if (!s.ui) s.ui = { fixHeightEnabled: true, maxVisiblePerGroup: 5, colCount: 3 };
       if (!s.sortBy) s.sortBy = 'latest';
       resolve(s);
     });
@@ -118,6 +124,94 @@ function getFallbackFavicon(url) {
 function defaultIconDataUri() {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" rx="3" fill="#5b6b7c"/><path d="M8 3a5 5 0 100 10 5 5 0 000-10z" fill="#cfd8e3"/></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function applyColumnCount(n){
+  n = Math.max(1, Math.min(4, parseInt(n||3,10)));
+  const gap = 16;
+  if ($grid) {
+    $grid.style.columnGap = gap + 'px';
+    $grid.style.columnWidth = `calc((100% - ${(n-1)*gap}px) / ${n})`;
+  }
+}
+
+// 分類管理（UI）輔助
+function slugify(s='') { return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+function genUniqueKey(base, existing) {
+  let k = slugify(base) || 'category';
+  let i = 1, c = k;
+  while (existing.has(c)) c = `${k}-${i++}`;
+  return c;
+}
+function renderCategoriesUI(cats=[]) {
+  if (!$categoriesUI) return;
+  $categoriesUI.innerHTML = '';
+  for (const cat of cats) {
+    const div = document.createElement('div');
+    div.className = 'cat';
+    div.dataset.key = cat.key;
+    div.style.border = '1px solid var(--stroke)';
+    div.style.borderRadius = '10px';
+    div.style.padding = '8px';
+    div.style.display = 'grid';
+    div.style.gap = '6px';
+
+    const enabled = cat.enabled !== false ? 'checked' : '';
+    const matchers = Array.isArray(cat.matchers) ? cat.matchers : [];
+    const matcherRows = matchers.map(m => `
+      <div class="matcher" style="display:flex; gap:8px; align-items:center;">
+        <select class="m-type" style="width:110px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+          <option value="domain" ${m.type==='domain'?'selected':''}>domain</option>
+          <option value="prefix" ${m.type==='prefix'?'selected':''}>prefix</option>
+          <option value="regex" ${m.type==='regex'?'selected':''}>regex</option>
+        </select>
+        <input class="m-value" type="text" value="${escapeHtml(m.value||'')}" placeholder="例如：gitlab.com 或 ^https://docs\\.google\\.com" style="flex:1; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+        <button type="button" class="btn remove-matcher">刪除規則</button>
+      </div>
+    `).join('');
+
+    div.innerHTML = `
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="checkbox" class="cat-enabled" ${enabled} />
+        <input type="text" class="cat-label" value="${escapeHtml(cat.label||'')}" placeholder="分類名稱" style="flex:1 1 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+        <input type="text" class="cat-key" value="${escapeHtml(cat.key||'')}" placeholder="key（唯一）" title="僅限小寫英數與 -，需唯一" style="flex:0 0 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+        <input type="url" class="cat-icon" value="${escapeHtml(cat.iconUrl||'')}" placeholder="自訂圖示 URL" style="flex:1 1 220px; min-width:220px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+        <button type="button" class="btn cat-delete" title="刪除此分類">刪除分類</button>
+      </div>
+      <div class="matchers" style="display:grid; gap:6px;">
+        ${matcherRows}
+        <div><button type="button" class="btn add-matcher">新增規則</button></div>
+      </div>
+    `;
+    $categoriesUI.appendChild(div);
+  }
+}
+function readCategoriesFromUI() {
+  if (!$categoriesUI) return [];
+  const out = [];
+  const used = new Set();
+  for (const el of $categoriesUI.querySelectorAll('.cat')) {
+    const enabled = el.querySelector('.cat-enabled')?.checked ?? true;
+    let key = (el.querySelector('.cat-key')?.value || '').trim();
+    const label = (el.querySelector('.cat-label')?.value || '').trim();
+    const iconUrl = (el.querySelector('.cat-icon')?.value || '').trim();
+    if (!label) throw new Error('存在未填標題的分類');
+    key = slugify(key || label);
+    if (!key) throw new Error('存在無效 key 的分類');
+    if (used.has(key)) throw new Error('分類 key 重複：' + key);
+    used.add(key);
+    const matchers = [];
+    for (const m of el.querySelectorAll('.matcher')) {
+      const type = m.querySelector('.m-type')?.value || 'domain';
+      const value = (m.querySelector('.m-value')?.value || '').trim();
+      if (!value) continue;
+      matchers.push({ type, value });
+    }
+    const obj = { key, label, enabled, matchers };
+    if (iconUrl) obj.iconUrl = iconUrl;
+    out.push(obj);
+  }
+  return out;
 }
 
 // 排序分數（智慧排序）
@@ -224,7 +318,7 @@ async function fetchHistory() {
   STATE.filtered = STATE.items.filter(it => order.some(c => matchUrl(it.url, c.matchers)));
 }
 
-function renderListItems($container, list) {
+function renderListItems($container, list, opts={}) {
   $container.innerHTML = '';
   for (const it of list) {
     const pinActive = !!STATE.settings.pinned[it.url];
@@ -249,13 +343,20 @@ function renderListItems($container, list) {
     // 圖示 fallback：/favicon.ico 失敗時改用 Google S2，再失敗用內建 SVG
     const $img = el.querySelector('.favicon img');
     if ($img) {
-      $img.onerror = () => {
-        $img.onerror = () => {
-          $img.onerror = null;
-          $img.src = defaultIconDataUri();
-        };
-        $img.src = getFallbackFavicon(it.url);
+      const candidates = [];
+      const catIcon = opts.catIconUrl;
+      if (catIcon) candidates.push(catIcon);
+      candidates.push(getFavicon(it.url));
+      candidates.push(getFallbackFavicon(it.url));
+      candidates.push(defaultIconDataUri());
+      let idx = 0;
+      const tryNext = () => {
+        if (idx >= candidates.length) return;
+        const src = candidates[idx++];
+        $img.src = src;
       };
+      $img.onerror = tryNext;
+      tryNext();
     }
     $container.appendChild(el);
   }
@@ -299,7 +400,7 @@ function renderGrid(cats, query='') {
       $list.style.overflow = 'auto';
     }
 
-    renderListItems($list, filtered);
+    renderListItems($list, filtered, { catIconUrl: cat.iconUrl });
     $grid.appendChild(card);
   }
 }
@@ -337,9 +438,12 @@ async function init() {
   $limitInput.value = STATE.settings.perCategoryLimit;
   $daysInput.value = STATE.settings.recentDays;
   if ($sortSelect) $sortSelect.value = STATE.settings.sortBy || 'latest';
+  if ($colCountSelect) $colCountSelect.value = String(STATE.settings.ui.colCount || 3);
   if ($fixHeightCheckbox) $fixHeightCheckbox.checked = !!STATE.settings.ui.fixHeightEnabled;
   if ($maxVisibleInput) $maxVisibleInput.value = STATE.settings.ui.maxVisiblePerGroup || 5;
   if ($categoriesTextarea) $categoriesTextarea.value = JSON.stringify(STATE.settings.categories, null, 2);
+  if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
+  applyColumnCount(STATE.settings.ui.colCount || 3);
   updateFixToggleLabel();
 
   await refreshAndRender();
@@ -368,11 +472,72 @@ async function init() {
   // 設定開關
   $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
 
-  // 設定：分類重置
+  // 欄位數即時變更
+  $colCountSelect?.addEventListener('change', (e) => {
+    const n = parseInt(e.target.value || '3', 10);
+    applyColumnCount(n);
+  });
+
+  // 分類管理（UI）事件
+  $addCategoryBtn?.addEventListener('click', () => {
+    const arr = readCategoriesFromUI();
+    const keys = new Set(arr.map(c => c.key));
+    const key = genUniqueKey('custom', keys);
+    arr.push({ key, label: '新分類', enabled: true, matchers: [{ type: 'domain', value: '' }] });
+    renderCategoriesUI(arr);
+  });
+  $resetCategoriesUIButton?.addEventListener('click', () => {
+    renderCategoriesUI(defaultCategories());
+  });
+  $saveCategoriesUIButton?.addEventListener('click', async () => {
+    try {
+      const arr = readCategoriesFromUI();
+      if (!arr.length) throw new Error('至少需要一個分類');
+      // 驗證唯一 key
+      const set = new Set();
+      for (const c of arr) {
+        if (set.has(c.key)) throw new Error('分類 key 重複：' + c.key);
+        set.add(c.key);
+      }
+      STATE.settings.categories = arr;
+      await saveSettings(STATE.settings);
+      await refreshAndRender();
+      alert('分類已儲存');
+    } catch (err) {
+      alert('分類設定有誤：' + (err?.message || err));
+    }
+  });
+
+  $categoriesUI?.addEventListener('click', (e) => {
+    const catEl = e.target.closest('.cat');
+    if (!catEl) return;
+    const key = catEl.dataset.key;
+    if (e.target.closest('.add-matcher')) {
+      const arr = readCategoriesFromUI();
+      const idx = arr.findIndex(c => c.key === key);
+      if (idx >= 0) { arr[idx].matchers.push({ type: 'domain', value: '' }); renderCategoriesUI(arr); }
+    } else if (e.target.closest('.remove-matcher')) {
+      const mEl = e.target.closest('.matcher');
+      const type = mEl?.querySelector('.m-type')?.value;
+      const value = mEl?.querySelector('.m-value')?.value;
+      const arr = readCategoriesFromUI();
+      const idx = arr.findIndex(c => c.key === key);
+      if (idx >= 0) {
+        const i2 = arr[idx].matchers.findIndex(m => m.type === type && m.value === value);
+        if (i2 >= 0) arr[idx].matchers.splice(i2,1);
+        renderCategoriesUI(arr);
+      }
+    } else if (e.target.closest('.cat-delete')) {
+      const arr = readCategoriesFromUI().filter(c => c.key !== key);
+      renderCategoriesUI(arr);
+    }
+  });
+
+  // 設定：分類重置（進階 JSON）
   $resetCategoriesBtn?.addEventListener('click', () => {
     $categoriesTextarea.value = JSON.stringify(defaultCategories(), null, 2);
   });
-  // 設定：分類儲存（不關閉視窗）
+  // 設定：分類儲存（進階 JSON，不關閉視窗）
   $saveCategoriesBtn?.addEventListener('click', async () => {
     try {
       const value = JSON.parse($categoriesTextarea.value);
@@ -398,8 +563,17 @@ async function init() {
       const perCategoryLimit = Math.max(5, Math.min(200, parseInt($limitInput.value || 12, 10)));
       const recentDays = Math.max(1, Math.min(365, parseInt($daysInput.value || 60, 10)));
       const sortBy = ($sortSelect?.value === 'smart') ? 'smart' : 'latest';
+      const colCount = Math.max(1, Math.min(4, parseInt($colCountSelect?.value || 3, 10)));
       const maxVisible = Math.max(3, Math.min(20, parseInt($maxVisibleInput.value || 5, 10)));
-      // 也嘗試套用分類 JSON（若可解析）
+
+      // 優先採用 UI 版本的分類設定
+      try {
+        if ($categoriesUI) {
+          const arr = readCategoriesFromUI();
+          if (Array.isArray(arr) && arr.length) STATE.settings.categories = arr;
+        }
+      } catch { /* ignore */ }
+      // 次要採用 JSON（進階）
       try {
         if ($categoriesTextarea?.value) {
           const value = JSON.parse($categoriesTextarea.value);
@@ -410,9 +584,11 @@ async function init() {
       STATE.settings.perCategoryLimit = perCategoryLimit;
       STATE.settings.recentDays = recentDays;
       STATE.settings.sortBy = sortBy;
+      STATE.settings.ui.colCount = colCount;
       STATE.settings.ui.maxVisiblePerGroup = maxVisible;
 
       await saveSettings(STATE.settings);
+      applyColumnCount(colCount);
       await refreshAndRender();
       updateFixToggleLabel();
     }
@@ -459,7 +635,7 @@ function openFocus(key) {
   if ($focusDot) $focusDot.style.background = dotColor || '';
 
   const list = getCategoryFullList(key);
-  renderListItems($focusList, list);
+  renderListItems($focusList, list, { catIconUrl: cat.iconUrl });
   if (!$focusDialog.open) $focusDialog.showModal();
 }
 
