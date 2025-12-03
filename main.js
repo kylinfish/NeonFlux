@@ -1,6 +1,34 @@
 // 設定：分類模板（可被使用者覆寫）
 function defaultCategories() {
   return [
+    // Google Workspace (G Suite) 優先排序
+    {
+      key: 'gdocs', label: 'Google Docs', enabled: true,
+      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/document' } ]
+    },
+    {
+      key: 'gsheets', label: 'Google Sheets', enabled: true,
+      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/spreadsheets' } ]
+    },
+    {
+      key: 'gslides', label: 'Google Slides', enabled: true,
+      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/presentation' } ]
+    },
+    {
+      key: 'gcal', label: 'Google Meet', enabled: false,
+      matchers: [ { type: 'domain', value: 'meet.google.com' } ]
+    },
+    {
+      key: 'youtube', label: 'YouTube', enabled: false,
+      matchers: [ { type: 'domain', value: 'youtube.com' }, { type: 'domain', value: 'www.youtube.com' }, { type: 'domain', value: 'youtu.be' } ]
+    },
+    {
+      key: 'gcp', label: 'Google Cloud', enabled: false,
+      matchers: [ 
+        { type: 'domain', value: 'console.cloud.google.com' },
+        { type: 'domain', value: 'cloud.google.com' }
+      ]
+    },
     {
       key: 'aws', label: 'AWS', enabled: true,
       matchers: [
@@ -8,25 +36,60 @@ function defaultCategories() {
       ]
     },
     {
+      key: 'azure', label: 'Azure', enabled: false,
+      matchers: [
+        { type: 'domain', value: 'portal.azure.com' },
+        { type: 'domain', value: 'azure.microsoft.com' }
+      ]
+    },
+    
+    // 任務追蹤與協作工具
+    {
+      key: 'clickup', label: 'ClickUp', enabled: false,
+      matchers: [ { type: 'domain', value: 'clickup.com' }, { type: 'domain', value: 'app.clickup.com' } ]
+    },
+    {
+      key: 'jira', label: 'Jira', enabled: false,
+      matchers: [ { type: 'regex', value: '\\.atlassian\\.net' }, { type: 'regex', value: 'jira\\.' } ]
+    },
+    {
+      key: 'linear', label: 'Linear', enabled: false,
+      matchers: [ { type: 'domain', value: 'linear.app' } ]
+    },
+    {
+      key: 'asana', label: 'Asana', enabled: false,
+      matchers: [ { type: 'domain', value: 'asana.com' }, { type: 'domain', value: 'app.asana.com' } ]
+    },
+    {
+      key: 'trello', label: 'Trello', enabled: false,
+      matchers: [ { type: 'domain', value: 'trello.com' } ]
+    },
+    
+    // 版本控制與開發工具
+    {
       key: 'gitlab', label: 'GitLab', enabled: true,
       matchers: [ { type: 'regex', value: 'gitlab\\.com|\\.gitlab\\.' } ]
     },
     {
-      key: 'gdocs', label: 'Google Docs', enabled: true,
-      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/document' } ]
+      key: 'github', label: 'GitHub', enabled: false,
+      matchers: [ { type: 'domain', value: 'github.com' }, { type: 'domain', value: 'gist.github.com' } ]
     },
-    {
-      key: 'gslides', label: 'Google Slides', enabled: true,
-      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/presentation' } ]
-    },
-    {
-      key: 'gsheets', label: 'Google Sheets', enabled: true,
-      matchers: [ { type: 'regex', value: 'docs\\.google\\.com\\/spreadsheets' } ]
-    },
+    
+    // 設計與協作工具
     {
       key: 'figma', label: 'Figma', enabled: true,
       matchers: [ { type: 'domain', value: 'figma.com' } ]
-    }
+    },
+    {
+      key: 'miro', label: 'Miro', enabled: false,
+      matchers: [ { type: 'domain', value: 'miro.com' } ]
+    },
+    
+    // 知識管理與筆記
+    {
+      key: 'notion', label: 'Notion', enabled: false,
+      matchers: [ { type: 'domain', value: 'notion.so' }, { type: 'domain', value: 'www.notion.so' } ]
+    },
   ];
 }
 
