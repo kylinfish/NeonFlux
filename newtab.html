@@ -1,5 +1,5 @@
 <!doctype html>
-  <html lang="zh-Hant">
+  <html lang="zh-Hant" id="htmlRoot">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -11,6 +11,8 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png" media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" href="icon.png">
+    <script src="./i18n.js" defer></script>
+    <script src="./icons.js" defer></script>
     <style>
       :root{
         --bg: #0b0f14;
@@ -119,8 +121,13 @@
         color: var(--text);
         cursor: pointer;
         backdrop-filter: blur(var(--blur));
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
       }
       .btn:hover { background: var(--glass-strong); }
+      .btn svg { width: 18px; height: 18px; }
       .cat-delete, .remove-matcher { border-color:#bd6b6b ;}
 
       main {
@@ -249,9 +256,9 @@
           <div class="kbd">/</div>
         </div>
 
-        <button class="btn" id="refreshBtn" title="同步瀏覽記錄">🔄</button>
-        <button class="btn" id="curtainBtn" title="隱私門簾（投影用）">🔓</button>
-        <button class="btn" id="settingsBtn" title="設定">⚙️</button>
+        <button class="btn" id="refreshBtn" title="同步瀏覽記錄"></button>
+        <button class="btn" id="curtainBtn" title="隱私門簾（投影用）"></button>
+        <button class="btn" id="settingsBtn" title="設定"></button>
       </div>
     </header>
 
@@ -263,43 +270,50 @@
     <!-- Settings modal -->
     <dialog id="settingsDialog">
       <form method="dialog" style="min-width: 340px; max-width: 720px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
-        <h3 style="margin:0 0 10px 0;">設定</h3>
+        <h3 id="settingsTitle" style="margin:0 0 10px 0;">設定</h3>
         <div style="display:grid; gap:12px;">
           <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
-            <legend style="color:var(--muted);">一般</legend>
+            <legend id="settingsGeneralLegend" style="color:var(--muted);">一般</legend>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>分類顯示數量（上限）</span>
-              <input id="limitInput" type="number" min="5" max="100" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+              <span id="settingsCategoryLimitLabel">分類顯示數量（上限）</span>
+              <input id="limitInput" type="number" min="3" max="100" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
             </label>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>僅顯示近 N 天</span>
+              <span id="settingsRecentDaysLabel">僅顯示近 N 天</span>
               <input id="daysInput" type="number" min="1" max="365" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
             </label>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>排序模式</span>
+              <span id="settingsSortModeLabel">排序模式</span>
               <select id="sortSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
-                <option value="latest">最新在前</option>
-                <option value="smart">智慧排序</option>
+                <option value="latest" id="sortLatestOption">最新在前</option>
+                <option value="smart" id="sortSmartOption">智慧排序</option>
               </select>
             </label>
             <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span>每列分類數（欄位數）</span>
+              <span id="settingsColCountLabel">每列分類數（欄位數）</span>
               <select id="colCountSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
-                <option value="1">1 欄</option>
-                <option value="2">2 欄</option>
-                <option value="3">3 欄</option>
-                <option value="4">4 欄</option>
+                <option value="1" id="colCount1Option">1 欄</option>
+                <option value="2" id="colCount2Option">2 欄</option>
+                <option value="3" id="colCount3Option">3 欄</option>
+                <option value="4" id="colCount4Option">4 欄</option>
+              </select>
+            </label>
+            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span id="langLabel">語言</span>
+              <select id="langSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
               </select>
             </label>
 
             <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-              <button class="btn" style="width:100px" value="cancel">取消</button>
-              <button class="btn" style="width:100px" value="confirm">儲存</button>
+              <button class="btn" style="width:100px" value="cancel" id="settingsCancelBtn">取消</button>
+              <button class="btn" style="width:100px" value="confirm" id="settingsSaveBtn">儲存</button>
             </div>
           </fieldset>
 
           <details>
-            <summary style="cursor:pointer; color:var(--muted);">分類管理（進階）</summary>
+            <summary id="settingsCategoryManagementSummary" style="cursor:pointer; color:var(--muted);">分類管理（進階）</summary>
             <div style="display:grid; gap:8px; margin-top:8px;">
 
 
