@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-Hant" id="htmlRoot">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NeonFlux - Privacy Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="icon_white.png">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.14);
+      --stroke: rgba(255,255,255,0.12);
+      --text: #e9eef6;
+      --muted: #b6c2d0;
+      --accent: #7cc3ff;
+      --radius: 16px;
+      --blur: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 10% -10%, #142032 0%, transparent 60%),
+                  radial-gradient(1000px 700px at 110% 20%, #1a2440 0%, transparent 60%),
+                  radial-gradient(800px 600px at 50% 120%, #0e1626 0%, transparent 60%),
+                  var(--bg);
+      overflow-x: hidden;
+    }
+
+    .bg-blobs {
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+      filter: blur(40px) saturate(120%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+
+    .blob {
+      position: absolute; width: 40vmax; height: 40vmax; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(124,195,255,0.35), rgba(124,195,255,0.05) 60%, transparent 70%);
+      animation: float 28s ease-in-out infinite;
+      mix-blend-mode: screen;
+    }
+
+    .blob.b2 { background: radial-gradient(circle at 60% 40%, rgba(173,124,255,0.30), rgba(173,124,255,0.05) 60%, transparent 70%); animation-duration: 36s; }
+    .blob.b3 { background: radial-gradient(circle at 50% 50%, rgba(255,180,124,0.25), rgba(255,180,124,0.05) 60%, transparent 70%); animation-duration: 42s; }
+
+    @keyframes float {
+      0% { transform: translate(-10%, -10%) scale(1); }
+      25% { transform: translate(10%, -5%) scale(1.08); }
+      50% { transform: translate(0%, 10%) scale(0.96); }
+      75% { transform: translate(-8%, -2%) scale(1.04); }
+      100% { transform: translate(-10%, -10%) scale(1); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--stroke);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .logo-section:hover {
+      opacity: 0.8;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
+      box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 16px rgba(0,0,0,0.25);
+      backdrop-filter: blur(var(--blur));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-text h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 4px;
+      backdrop-filter: blur(var(--blur));
+    }
+
+    .lang-btn {
+      padding: 8px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: rgba(124,195,255,0.2);
+      color: var(--accent);
+      border: 1px solid rgba(124,195,255,0.4);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .content {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 40px;
+      backdrop-filter: blur(var(--blur));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 0 0 24px 0;
+      color: var(--text);
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 32px 0 16px 0;
+      color: var(--text);
+      border-bottom: 1px solid var(--stroke);
+      padding-bottom: 12px;
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    p {
+      margin: 0 0 16px 0;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    ul, ol {
+      margin: 0 0 16px 0;
+      padding-left: 24px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .last-updated {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--stroke);
+    }
+
+    .toc {
+      background: rgba(124,195,255,0.08);
+      border: 1px solid rgba(124,195,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .toc h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    .toc ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .toc a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .toc a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--stroke);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 16px;
+      }
+
+      header {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      border: 2px solid rgba(0,0,0,0);
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs">
+    <div class="blob b1" style="left:-10vmax; top:-10vmax;"></div>
+    <div class="blob b2" style="right:-12vmax; top:0;"></div>
+    <div class="blob b3" style="left:10vmax; bottom:-12vmax;"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="logo-section" onclick="window.location.href='./index.html'">
+        <div class="logo"><img src="icon.png" alt="NeonFlux logo"></div>
+        <div class="logo-text">
+          <h1>NeonFlux</h1>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="zh" id="langZh">中文</button>
+        <button class="lang-btn" data-lang="en" id="langEn">English</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <h1 id="title">隱私政策</h1>
+      <div class="last-updated" id="lastUpdated">最後更新：2025年12月</div>
+
+      <div class="toc">
+        <h3 id="tocTitle">目錄</h3>
+        <ul>
+          <li><a href="#overview" id="tocOverview">概述</a></li>
+          <li><a href="#data-collection" id="tocDataCollection">資料收集</a></li>
+          <li><a href="#data-usage" id="tocDataUsage">資料使用</a></li>
+          <li><a href="#data-storage" id="tocDataStorage">資料儲存</a></li>
+          <li><a href="#permissions" id="tocPermissions">權限說明</a></li>
+          <li><a href="#third-party" id="tocThirdParty">第三方服務</a></li>
+          <li><a href="#user-rights" id="tocUserRights">使用者權利</a></li>
+          <li><a href="#contact" id="tocContact">聯絡我們</a></li>
+        </ul>
+      </div>
+
+      <h2 id="overview">概述</h2>
+      <p id="overviewText">NeonFlux 是一個 Chrome 擴充功能，致力於保護使用者隱私。本隱私政策說明我們如何收集、使用和保護您的資料。</p>
+
+      <h2 id="data-collection">資料收集</h2>
+      <p id="dataCollectionIntro">NeonFlux 僅收集以下資料：</p>
+      <ul id="dataCollectionList">
+        <li><strong id="dcBrowsingHistory">瀏覽記錄</strong>：您訪問的網站 URL 和標題，用於分類和顯示</li>
+        <li><strong id="dcShortcuts">快速連結</strong>：您手動新增的書籤和快速連結</li>
+        <li><strong id="dcSettings">使用者設定</strong>：您在設定中配置的偏好設定（語言、排序方式、分類規則等）</li>
+        <li><strong id="dcFavicons">Favicon</strong>：網站圖標，用於視覺識別</li>
+      </ul>
+
+      <h2 id="data-usage">資料使用</h2>
+      <p id="dataUsageIntro">我們收集的資料僅用於以下目的：</p>
+      <ul id="dataUsageList">
+        <li id="duCategorization">根據您的規則自動分類瀏覽記錄</li>
+        <li id="duSearch">提供搜尋和篩選功能</li>
+        <li id="duDisplay">在新分頁中顯示分類的連結</li>
+        <li id="duPreferences">儲存您的使用者偏好設定</li>
+        <li id="duFunctionality">提供快速連結和其他功能</li>
+      </ul>
+
+      <h2 id="data-storage">資料儲存</h2>
+      <p id="dataStorageText"><strong id="dsLocal">本機儲存</strong>：所有資料儲存在您的本機裝置上，使用 Chrome 的 storage API。我們不會將任何資料上傳到我們的伺服器或第三方伺服器。</p>
+      <p id="dataStorageSync">如果您啟用了 Chrome 同步功能，您的設定可能會根據 Google 的隱私政策同步到您的 Google 帳戶。</p>
+
+      <h2 id="permissions">權限說明</h2>
+      <p id="permissionsIntro">NeonFlux 需要以下權限：</p>
+      <ul id="permissionsList">
+        <li><strong id="permHistory">history</strong>：讀取您的瀏覽記錄，用於分類和顯示</li>
+        <li><strong id="permStorage">storage</strong>：儲存您的設定、快速連結和分類規則</li>
+        <li><strong id="permTabs">tabs</strong>：獲取當前標籤資訊，用於快速連結功能</li>
+      </ul>
+      <p id="permissionsNote">我們不會修改、刪除或上傳您的瀏覽記錄。</p>
+
+      <h2 id="third-party">第三方服務</h2>
+      <p id="thirdPartyIntro">NeonFlux 可能使用以下第三方服務來提取 Favicon：</p>
+      <ul id="thirdPartyList">
+        <li><strong id="tpDuckDuckGo">DuckDuckGo Icon Service</strong>：用於獲取網站圖標</li>
+        <li><strong id="tpGoogle">Google Favicon API</strong>：備用 Favicon 來源</li>
+      </ul>
+      <p id="thirdPartyNote">這些服務可能會根據其隱私政策收集您的 IP 地址和請求資訊。我們建議您查閱這些服務的隱私政策。</p>
+
+      <h2 id="user-rights">使用者權利</h2>
+      <p id="userRightsIntro">您對您的資料擁有完全控制權：</p>
+      <ul id="userRightsList">
+        <li id="urAccess">您可以隨時查看和匯出您的資料</li>
+        <li id="urDelete">您可以刪除任何快速連結或設定</li>
+        <li id="urUninstall">卸載擴充功能將刪除所有本機儲存的資料</li>
+        <li id="urOptOut">您可以禁用任何權限或功能</li>
+      </ul>
+
+      <h2 id="contact">聯絡我們</h2>
+      <p id="contactText">如果您對本隱私政策有任何疑問，請通過 Chrome Web Store 的評論或反饋功能與我們聯絡。</p>
+
+      <footer id="footer">© 2025 NeonFlux. 保留所有權利。</footer>
+    </div>
+  </div>
+
+  <script>
+    const privacyI18n = {
+      zh: {
+        title: '隱私政策',
+        lastUpdated: '最後更新：2025年12月',
+        tocTitle: '目錄',
+        tocOverview: '概述',
+        tocDataCollection: '資料收集',
+        tocDataUsage: '資料使用',
+        tocDataStorage: '資料儲存',
+        tocPermissions: '權限說明',
+        tocThirdParty: '第三方服務',
+        tocUserRights: '使用者權利',
+        tocContact: '聯絡我們',
+        overview: '概述',
+        overviewText: 'NeonFlux 是一個 Chrome 擴充功能，致力於保護使用者隱私。本隱私政策說明我們如何收集、使用和保護您的資料。',
+        dataCollection: '資料收集',
+        dataCollectionIntro: 'NeonFlux 僅收集以下資料：',
+        dcBrowsingHistory: '瀏覽記錄',
+        dcBrowsingHistoryDesc: '您訪問的網站 URL 和標題，用於分類和顯示',
+        dcShortcuts: '快速連結',
+        dcShortcutsDesc: '您手動新增的書籤和快速連結',
+        dcSettings: '使用者設定',
+        dcSettingsDesc: '您在設定中配置的偏好設定（語言、排序方式、分類規則等）',
+        dcFavicons: 'Favicon',
+        dcFaviconsDesc: '網站圖標，用於視覺識別',
+        dataUsage: '資料使用',
+        dataUsageIntro: '我們收集的資料僅用於以下目的：',
+        duCategorization: '根據您的規則自動分類瀏覽記錄',
+        duSearch: '提供搜尋和篩選功能',
+        duDisplay: '在新分頁中顯示分類的連結',
+        duPreferences: '儲存您的使用者偏好設定',
+        duFunctionality: '提供快速連結和其他功能',
+        dataStorage: '資料儲存',
+        dsLocal: '本機儲存',
+        dataStorageText: '所有資料儲存在您的本機裝置上，使用 Chrome 的 storage API。我們不會將任何資料上傳到我們的伺服器或第三方伺服器。',
+        dataStorageSync: '如果您啟用了 Chrome 同步功能，您的設定可能會根據 Google 的隱私政策同步到您的 Google 帳戶。',
+        permissions: '權限說明',
+        permissionsIntro: 'NeonFlux 需要以下權限：',
+        permHistory: 'history',
+        permHistoryDesc: '讀取您的瀏覽記錄，用於分類和顯示',
+        permStorage: 'storage',
+        permStorageDesc: '儲存您的設定、快速連結和分類規則',
+        permTabs: 'tabs',
+        permTabsDesc: '獲取當前標籤資訊，用於快速連結功能',
+        permissionsNote: '我們不會修改、刪除或上傳您的瀏覽記錄。',
+        thirdParty: '第三方服務',
+        thirdPartyIntro: 'NeonFlux 可能使用以下第三方服務來提取 Favicon：',
+        tpDuckDuckGo: 'DuckDuckGo Icon Service',
+        tpDuckDuckGoDesc: '用於獲取網站圖標',
+        tpGoogle: 'Google Favicon API',
+        tpGoogleDesc: '備用 Favicon 來源',
+        thirdPartyNote: '這些服務可能會根據其隱私政策收集您的 IP 地址和請求資訊。我們建議您查閱這些服務的隱私政策。',
+        userRights: '使用者權利',
+        userRightsIntro: '您對您的資料擁有完全控制權：',
+        urAccess: '您可以隨時查看和匯出您的資料',
+        urDelete: '您可以刪除任何快速連結或設定',
+        urUninstall: '卸載擴充功能將刪除所有本機儲存的資料',
+        urOptOut: '您可以禁用任何權限或功能',
+        contact: '聯絡我們',
+        contactText: '如果您對本隱私政策有任何疑問，請通過 Chrome Web Store 的評論或反饋功能與我們聯絡。',
+        footer: '© 2025 NeonFlux. 保留所有權利。'
+      },
+      en: {
+        title: 'Privacy Policy',
+        lastUpdated: 'Last Updated: December 2025',
+        tocTitle: 'Table of Contents',
+        tocOverview: 'Overview',
+        tocDataCollection: 'Data Collection',
+        tocDataUsage: 'Data Usage',
+        tocDataStorage: 'Data Storage',
+        tocPermissions: 'Permissions',
+        tocThirdParty: 'Third-Party Services',
+        tocUserRights: 'User Rights',
+        tocContact: 'Contact Us',
+        overview: 'Overview',
+        overviewText: 'NeonFlux is a Chrome extension committed to protecting user privacy. This privacy policy explains how we collect, use, and protect your data.',
+        dataCollection: 'Data Collection',
+        dataCollectionIntro: 'NeonFlux only collects the following data:',
+        dcBrowsingHistory: 'Browsing History',
+        dcBrowsingHistoryDesc: 'URLs and titles of websites you visit, used for categorization and display',
+        dcShortcuts: 'Quick Links',
+        dcShortcutsDesc: 'Bookmarks and quick links you manually add',
+        dcSettings: 'User Settings',
+        dcSettingsDesc: 'Preferences you configure in settings (language, sort mode, categorization rules, etc.)',
+        dcFavicons: 'Favicons',
+        dcFaviconsDesc: 'Website icons for visual identification',
+        dataUsage: 'Data Usage',
+        dataUsageIntro: 'The data we collect is used only for the following purposes:',
+        duCategorization: 'Automatically categorize browsing history based on your rules',
+        duSearch: 'Provide search and filtering functionality',
+        duDisplay: 'Display categorized links in the new tab page',
+        duPreferences: 'Store your user preferences',
+        duFunctionality: 'Provide quick links and other features',
+        dataStorage: 'Data Storage',
+        dsLocal: 'Local Storage',
+        dataStorageText: 'All data is stored on your local device using Chrome\'s storage API. We do not upload any data to our servers or third-party servers.',
+        dataStorageSync: 'If you have enabled Chrome Sync, your settings may be synced to your Google account according to Google\'s privacy policy.',
+        permissions: 'Permissions',
+        permissionsIntro: 'NeonFlux requires the following permissions:',
+        permHistory: 'history',
+        permHistoryDesc: 'Read your browsing history for categorization and display',
+        permStorage: 'storage',
+        permStorageDesc: 'Store your settings, quick links, and categorization rules',
+        permTabs: 'tabs',
+        permTabsDesc: 'Get current tab information for quick link functionality',
+        permissionsNote: 'We do not modify, delete, or upload your browsing history.',
+        thirdParty: 'Third-Party Services',
+        thirdPartyIntro: 'NeonFlux may use the following third-party services to extract favicons:',
+        tpDuckDuckGo: 'DuckDuckGo Icon Service',
+        tpDuckDuckGoDesc: 'Used to retrieve website icons',
+        tpGoogle: 'Google Favicon API',
+        tpGoogleDesc: 'Backup favicon source',
+        thirdPartyNote: 'These services may collect your IP address and request information according to their privacy policies. We recommend reviewing their privacy policies.',
+        userRights: 'User Rights',
+        userRightsIntro: 'You have complete control over your data:',
+        urAccess: 'You can view and export your data at any time',
+        urDelete: 'You can delete any quick links or settings',
+        urUninstall: 'Uninstalling the extension will delete all locally stored data',
+        urOptOut: 'You can disable any permissions or features',
+        contact: 'Contact Us',
+        contactText: 'If you have any questions about this privacy policy, please contact us through the Chrome Web Store reviews or feedback feature.',
+        footer: '© 2025 NeonFlux. All rights reserved.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('neonflux-lang') || 'zh';
+
+    function updateLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('neonflux-lang', lang);
+      
+      const translations = privacyI18n[lang];
+      Object.keys(translations).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+          element.textContent = translations[key];
+        }
+      });
+
+      document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+    }
+
+    function setupLanguageToggle() {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lang = btn.dataset.lang;
+          updateLanguage(lang);
+          
+          document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+
+      document.querySelector(`[data-lang="${currentLang}"]`).classList.add('active');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        updateLanguage(currentLang);
+        setupLanguageToggle();
+      });
+    } else {
+      updateLanguage(currentLang);
+      setupLanguageToggle();
+    }
+  </script>
+</body>
+</html>

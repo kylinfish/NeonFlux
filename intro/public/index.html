@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="zh-Hant" id="htmlRoot">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NeonFlux - Welcome</title>
+  
+  <!-- Meta Description -->
+  <meta name="description" content="NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。智慧分類、快速搜尋、隱私門簾。">
+  <meta name="keywords" content="瀏覽記錄, 分類, 生產力, 隱私, Chrome 擴充功能, 智慧分類">
+  <meta name="author" content="kylinyu.win">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://neonflux.web.app/">
+  <meta property="og:title" content="NeonFlux - 智慧分類你的瀏覽記錄">
+  <meta property="og:description" content="NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。">
+  <meta property="og:image" content="./screenshots/auto-categorized.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  
+  <!-- Additional OG Images for carousel -->
+  <meta property="og:image" content="./screenshots/customized-categories.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  
+  <meta property="og:image" content="./screenshots/focus-mode.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  
+  <meta property="og:image" content="./screenshots/curtain&two-column.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale:alternate" content="en_US">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://neonflux.web.app/">
+  <meta name="twitter:title" content="NeonFlux - 智慧分類你的瀏覽記錄">
+  <meta name="twitter:description" content="NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。">
+  <meta name="twitter:image" content="./screenshots/auto-categorized.png">
+  
+  <!-- Additional Meta -->
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="icon_white.png">
+  <script src="i18n.js" defer></script>
+  <script src="icons.js" defer></script>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.14);
+      --stroke: rgba(255,255,255,0.12);
+      --text: #e9eef6;
+      --muted: #b6c2d0;
+      --accent: #7cc3ff;
+      --accent-secondary: #ad7cff;
+      --radius: 16px;
+      --blur: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 10% -10%, #142032 0%, transparent 60%),
+                  radial-gradient(1000px 700px at 110% 20%, #1a2440 0%, transparent 60%),
+                  radial-gradient(800px 600px at 50% 120%, #0e1626 0%, transparent 60%),
+                  var(--bg);
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    .bg-blobs {
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+      filter: blur(40px) saturate(120%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+
+    .blob {
+      position: absolute; width: 40vmax; height: 40vmax; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(124,195,255,0.35), rgba(124,195,255,0.05) 60%, transparent 70%);
+      animation: float 28s ease-in-out infinite;
+      mix-blend-mode: screen;
+    }
+
+    .blob.b2 {
+      background: radial-gradient(circle at 60% 40%, rgba(173,124,255,0.30), rgba(173,124,255,0.05) 60%, transparent 70%);
+      animation-duration: 36s;
+    }
+
+    .blob.b3 {
+      background: radial-gradient(circle at 50% 50%, rgba(255,180,124,0.25), rgba(255,180,124,0.05) 60%, transparent 70%);
+      animation-duration: 42s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(-10%, -10%) scale(1); }
+      25% { transform: translate(10%, -5%) scale(1.08); }
+      50% { transform: translate(0%, 10%) scale(0.96); }
+      75% { transform: translate(-8%, -2%) scale(1.04); }
+      100% { transform: translate(-10%, -10%) scale(1); }
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Header with language toggle */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 40px;
+      backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid var(--stroke);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
+      box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 16px rgba(0,0,0,0.25);
+      backdrop-filter: blur(var(--blur));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-text h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .logo-text .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 4px;
+      backdrop-filter: blur(var(--blur));
+    }
+
+    .lang-btn {
+      padding: 8px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: rgba(124,195,255,0.2);
+      color: var(--accent);
+      border: 1px solid rgba(124,195,255,0.4);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--text);
+    }
+
+    /* Main content */
+    .content {
+      flex: 1;
+      padding: 60px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Hero section */
+    .hero {
+      text-align: center;
+      margin-bottom: 80px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero h2 {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      margin: 0;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Features grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .feature-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 28px;
+      backdrop-filter: blur(calc(var(--blur) * 0.9));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.18);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+    .feature-card:nth-child(4) { animation-delay: 0.4s; }
+    .feature-card:nth-child(5) { animation-delay: 0.5s; }
+    .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(200px 120px at 0% -10%, rgba(255,255,255,0.18), transparent 60%);
+      pointer-events: none;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(124,195,255,0.5);
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.08));
+      transform: translateY(-4px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(124,195,255,0.2), rgba(173,124,255,0.1));
+      border: 1px solid rgba(124,195,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 24px;
+      color: var(--accent);
+    }
+
+    .feature-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* Screenshots section */
+    .screenshots-section {
+      margin-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 32px 0;
+      text-align: center;
+    }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .screenshot-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(calc(var(--blur) * 0.9));
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .screenshot-card:nth-child(1) { animation-delay: 0.1s; }
+    .screenshot-card:nth-child(2) { animation-delay: 0.2s; }
+    .screenshot-card:nth-child(3) { animation-delay: 0.3s; }
+    .screenshot-card:nth-child(4) { animation-delay: 0.4s; }
+    .screenshot-card:nth-child(5) { animation-delay: 0.5s; }
+    .screenshot-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .screenshot-card:hover {
+      border-color: rgba(124,195,255,0.5);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .screenshot-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .screenshot-card:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .lightbox.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      animation: zoomIn 0.3s ease;
+    }
+
+    .lightbox-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .lightbox-prev {
+      left: -60px;
+    }
+
+    .lightbox-next {
+      right: -60px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: 60px 40px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      margin-bottom: 60px;
+      backdrop-filter: blur(var(--blur));
+      animation: fadeInUp 0.8s ease-out 0.7s both;
+    }
+
+    .cta-section h3 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 16px 0;
+    }
+
+    .cta-section p {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 0 0 28px 0;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      color: white;
+      box-shadow: 0 8px 24px rgba(124,195,255,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(124,195,255,0.4);
+    }
+
+    .btn-secondary {
+      background: var(--glass);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    .btn-secondary:hover {
+      background: var(--glass-strong);
+      border-color: rgba(124,195,255,0.5);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--stroke);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        padding: 16px 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .content {
+        padding: 40px 20px;
+      }
+
+      .hero h2 {
+        font-size: 32px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .screenshots-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-section {
+        padding: 40px 20px;
+      }
+
+      .cta-section h3 {
+        font-size: 22px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      border: 2px solid rgba(0,0,0,0);
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs">
+    <div class="blob b1" style="left:-10vmax; top:-10vmax;"></div>
+    <div class="blob b2" style="right:-12vmax; top:0;"></div>
+    <div class="blob b3" style="left:10vmax; bottom:-12vmax;"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="logo-section">
+        <div class="logo"><img src="icon_white.png" alt="NeonFlux logo"></div>
+        <div class="logo-text">
+          <h1>NeonFlux</h1>
+          <div class="subtitle" id="headerSubtitle">霓虹流</div>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="zh" id="langZh">中文</button>
+        <button class="lang-btn" data-lang="en" id="langEn">English</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Hero Section -->
+      <section class="hero">
+        <h2 id="heroTitle">智慧分類你的瀏覽記錄</h2>
+        <p id="heroDesc">NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。</p>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features-grid" id="featuresGrid">
+        <!-- Features will be populated by JavaScript -->
+      </section>
+
+      <!-- Screenshots Section -->
+      <section class="screenshots-section">
+        <h2 class="section-title" id="screenshotsTitle">功能展示</h2>
+        <div class="screenshots-grid" id="screenshotsGrid">
+          <!-- Screenshots will be populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Lightbox -->
+      <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+          <button class="lightbox-close" id="lightboxClose">&times;</button>
+          <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
+          <img class="lightbox-img" id="lightboxImg" src="" alt="">
+          <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <h3 id="ctaTitle">準備好了嗎？</h3>
+        <p id="ctaDesc">立即開始使用 NeonFlux，體驗智慧分類的便利。</p>
+        <div class="btn-group">
+            <a href="https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb"><button class="btn btn-primary" id="ctaStartBtn">開始使用</button></a>
+        </div>
+      </section>
+    </div>
+
+    <footer id="footer">
+      瀏覽記錄自動分類 · 本機儲存 · 隱私優先
+      <div style="margin-top: 12px; font-size: 12px;">
+        <a href="privacy.html" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" id="privacyLink">隱私政策</a>
+      </div>
+      <div style="margin-top: 16px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--stroke); padding-top: 12px;">
+        <span id="authorText">Created by</span> <a href="http://kylinyu.win/about/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">kylinyu.win</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Features data
+    const featuresData = {
+      zh: [
+        {
+          icon: 'tag',
+          title: '自動分類',
+          desc: '根據預設或自訂規則自動將瀏覽記錄分類'
+        },
+        {
+          icon: 'search',
+          title: '智慧搜尋',
+          desc: '即時搜尋標題或 URL，快速找到需要的連結'
+        },
+        {
+          icon: 'eye',
+          title: '隱私門簾',
+          desc: '投影模式下隱藏敏感記錄，適合會議演講'
+        },
+        {
+          icon: 'star',
+          title: '快速連結',
+          desc: '一鍵新增常用網站，自動提取 Favicon'
+        },
+        {
+          icon: 'layers',
+          title: '聚焦檢視',
+          desc: '專注於單一分類，查看完整的連結列表'
+        },
+        {
+          icon: 'globe',
+          title: '多語言支援',
+          desc: '支援繁體中文和英文，隨時切換語言'
+        }
+      ],
+      en: [
+        {
+          icon: 'tag',
+          title: 'Auto-Categorize',
+          desc: 'Automatically categorize browsing history by custom rules'
+        },
+        {
+          icon: 'search',
+          title: 'Smart Search',
+          desc: 'Real-time search by title or URL to find links quickly'
+        },
+        {
+          icon: 'eye',
+          title: 'Privacy Curtain',
+          desc: 'Hide sensitive records in presentation mode'
+        },
+        {
+          icon: 'star',
+          title: 'Quick Links',
+          desc: 'Add favorite websites with auto-extracted favicons'
+        },
+        {
+          icon: 'layers',
+          title: 'Focus View',
+          desc: 'Focus on a single category to see all links'
+        },
+        {
+          icon: 'globe',
+          title: 'Multi-Language',
+          desc: 'Support for Traditional Chinese and English'
+        }
+      ]
+    };
+
+    // Screenshots data
+    const screenshotsData = [
+      { path: './screenshots/auto-categorized.png', alt: 'Auto-categorized' },
+      { path: './screenshots/customized-categories.png', alt: 'Customized categories' },
+      { path: './screenshots/display-mode-change.png', alt: 'Display mode' },
+      { path: './screenshots/focus-mode.png', alt: 'Focus mode' },
+      { path: './screenshots/header-shortcut&four-columns.png', alt: 'Shortcuts & columns' },
+      { path: './screenshots/curtain&two-column.png', alt: 'Privacy curtain' }
+    ];
+
+    // Translations
+    const introI18n = {
+      zh: {
+        headerSubtitle: '霓虹流',
+        heroTitle: '智慧分類你的瀏覽記錄',
+        heroDesc: 'NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。',
+        screenshotsTitle: '功能展示',
+        ctaTitle: '準備好了嗎？',
+        ctaDesc: '立即開始使用 NeonFlux，體驗智慧分類的便利。',
+        ctaStartBtn: '開始使用',
+        footer: '瀏覽記錄自動分類 · 本機儲存 · 隱私優先',
+        authorText: 'Created By'
+      },
+      en: {
+        headerSubtitle: 'Neon Flow',
+        heroTitle: 'Categorize Your Browsing History Intelligently',
+        heroDesc: 'NeonFlux automatically categorizes your browsing history by workflow, boosting productivity. Privacy-first, all data stored locally.',
+        screenshotsTitle: 'Features Showcase',
+        ctaTitle: 'Ready to Get Started?',
+        ctaDesc: 'Start using NeonFlux now and experience the convenience of smart categorization.',
+        ctaStartBtn: 'Get Started',
+        footer: 'Auto-categorize browsing history · Local storage · Privacy first',
+        authorText: 'Created by'
+      }
+    };
+
+    // Current language
+    let currentLang = localStorage.getItem('neonflux-lang') || 'zh';
+
+    // Initialize
+    function init() {
+      renderFeatures();
+      renderScreenshots();
+      updateLanguage(currentLang);
+      setupLanguageToggle();
+      setupButtons();
+    }
+
+    function renderFeatures() {
+      const grid = document.getElementById('featuresGrid');
+      const features = featuresData[currentLang];
+      grid.innerHTML = features.map(feature => `
+        <div class="feature-card">
+          <div class="feature-icon">${getSvgIcon(feature.icon)}</div>
+          <h3>${feature.title}</h3>
+          <p>${feature.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderScreenshots() {
+      const grid = document.getElementById('screenshotsGrid');
+      grid.innerHTML = screenshotsData.map(screenshot => `
+        <div class="screenshot-card">
+          <img src="${screenshot.path}" alt="${screenshot.alt}" loading="lazy">
+        </div>
+      `).join('');
+    }
+
+    function updateLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('neonflux-lang', lang);
+
+      // Update UI text
+      document.getElementById('headerSubtitle').textContent = introI18n[lang].headerSubtitle;
+      document.getElementById('heroTitle').textContent = introI18n[lang].heroTitle;
+      document.getElementById('heroDesc').textContent = introI18n[lang].heroDesc;
+      document.getElementById('screenshotsTitle').textContent = introI18n[lang].screenshotsTitle;
+      document.getElementById('ctaTitle').textContent = introI18n[lang].ctaTitle;
+      document.getElementById('ctaDesc').textContent = introI18n[lang].ctaDesc;
+      document.getElementById('ctaStartBtn').textContent = introI18n[lang].ctaStartBtn;
+      document.getElementById('footer').innerHTML = introI18n[lang].footer +
+        `<div style="margin-top: 12px; font-size: 12px;">
+          <a href="./privacy.html" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">${lang === 'zh' ? '隱私政策' : 'Privacy Policy'}</a>
+        </div>
+        <div style="margin-top: 16px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--stroke); padding-top: 12px;">
+          <span>${introI18n[lang].authorText}</span> <a href="http://kylinyu.win/about/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">kylinyu.win</a>
+        </div>`;
+
+      // Update HTML lang attribute
+      document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+
+      // Update button active states
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.dataset.lang === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Re-render features with new language
+      renderFeatures();
+    }
+
+    function setupLanguageToggle() {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const lang = btn.dataset.lang;
+          updateLanguage(lang);
+        });
+      });
+    }
+
+    function setupButtons() {
+      document.getElementById('ctaStartBtn').addEventListener('click', () => {
+        // Navigate to main app
+        window.location.href = '../newtab.html';
+      });
+    }
+
+    // Lightbox functionality
+    let currentImageIndex = 0;
+
+    function setupLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightboxImg');
+      const lightboxClose = document.getElementById('lightboxClose');
+      const lightboxPrev = document.getElementById('lightboxPrev');
+      const lightboxNext = document.getElementById('lightboxNext');
+
+      // Open lightbox on image click
+      document.querySelectorAll('.screenshot-card img').forEach((img, index) => {
+        img.addEventListener('click', () => {
+          currentImageIndex = index;
+          lightboxImg.src = img.src;
+          lightbox.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      // Close lightbox
+      const closeLightbox = () => {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      // Navigation
+      const updateImage = () => {
+        const images = document.querySelectorAll('.screenshot-card img');
+        lightboxImg.src = images[currentImageIndex].src;
+      };
+
+      lightboxPrev.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex - 1 + screenshotsData.length) % screenshotsData.length;
+        updateImage();
+      });
+
+      lightboxNext.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex + 1) % screenshotsData.length;
+        updateImage();
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'ArrowLeft') lightboxPrev.click();
+        if (e.key === 'ArrowRight') lightboxNext.click();
+        if (e.key === 'Escape') closeLightbox();
+      });
+    }
+
+    // Handle hash-based routing
+    function handleRouting() {
+      const hash = window.location.hash.slice(1);
+      if (hash === 'privacy') {
+        window.location.href = 'privacy.html';
+      }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        init();
+        setupLightbox();
+        handleRouting();
+      });
+    } else {
+      init();
+      setupLightbox();
+      handleRouting();
+    }
+
+    // Handle hash changes
+    window.addEventListener('hashchange', handleRouting);
+  </script>
+</body>
+</html>
