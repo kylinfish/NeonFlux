@@ -104,7 +104,6 @@ const DEFAULT_SETTINGS = {
     sortBy: 'latest', // 'latest' | 'smart'
     ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false, privacyCurtainLocked: false, normalizeGroupEnabled: true },
     pinned: {},
-    shortcuts: [], // [{url, title, favicon}]
     categories: defaultCategories()
 };
 
@@ -132,17 +131,6 @@ const $focusList = document.getElementById('focusList');
 const $focusDot = document.getElementById('focusDot');
 const $focusCloseBtn = document.getElementById('focusCloseBtn');
 const $langSelect = document.getElementById('langSelect');
-
-// Shortcuts
-const $shortcutsContainer = document.getElementById('shortcutsContainer');
-const $shortcutsScroll = document.getElementById('shortcutsScroll');
-const $shortcutsLeftBtn = document.getElementById('shortcutsLeftBtn');
-const $shortcutsRightBtn = document.getElementById('shortcutsRightBtn');
-const $addShortcutBtn = document.getElementById('addShortcutBtn');
-const $addShortcutDialog = document.getElementById('addShortcutDialog');
-const $shortcutUrlInput = document.getElementById('shortcutUrlInput');
-const $shortcutCancelBtn = document.getElementById('shortcutCancelBtn');
-const $shortcutConfirmBtn = document.getElementById('shortcutConfirmBtn');
 
 let STATE = {
     settings: DEFAULT_SETTINGS,
@@ -176,8 +164,6 @@ function loadSettings() {
             // 兼容舊版（沒有 ui/sortBy）
             if (!s.ui) s.ui = { fixHeightEnabled: true, colCount: 3 };
             if (!s.sortBy) s.sortBy = 'latest';
-            // 確保有 shortcuts 陣列
-            if (!Array.isArray(s.shortcuts)) s.shortcuts = [];
             if (typeof s.ui.normalizeGroupEnabled === 'undefined') {
                 s.ui.normalizeGroupEnabled = true;
             }
@@ -609,9 +595,6 @@ function initializeIcons() {
     if ($curtainBtn) $curtainBtn.innerHTML = getSvgIcon('unlock');
     if ($settingsBtn) $settingsBtn.innerHTML = getSvgIcon('settings');
     if ($focusCloseBtn) $focusCloseBtn.innerHTML = getSvgIcon('x');
-    if ($addShortcutBtn) $addShortcutBtn.innerHTML = getSvgIcon('plus');
-    if ($shortcutsLeftBtn) $shortcutsLeftBtn.innerHTML = getSvgIcon('chevronLeft');
-    if ($shortcutsRightBtn) $shortcutsRightBtn.innerHTML = getSvgIcon('chevronRight');
 }
 
 // 初始化語言
@@ -619,269 +602,6 @@ function initializeLanguage() {
     const currentLang = getCurrentLanguage();
     if ($langSelect) $langSelect.value = currentLang;
     updateUIText();
-}
-
-// Shortcuts 相關函數
-async function extractFaviconFromPage(url) {
-    try {
-        // 嘗試從頁面 HTML 中提取 favicon
-        const htmlResponse = await fetch(url, {
-            mode: 'no-cors',
-            cache: 'force-cache'
-        }).catch(() => null);
-        
-        if (!htmlResponse) return null;
-        
-        const html = await htmlResponse.text().catch(() => '');
-        if (!html) return null;
-        
-        const baseUrl = new URL(url);
-        
-        // 優先級順序的 favicon 類型
-        const faviconPatterns = [
-            // 標準 icon
-            /<link[^>]*rel=["']icon["'][^>]*href=["']([^"']+)["']/i,
-            /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']icon["']/i,
-            // shortcut icon
-            /<link[^>]*rel=["']shortcut icon["'][^>]*href=["']([^"']+)["']/i,
-            /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']shortcut icon["']/i,
-            // apple-touch-icon
-            /<link[^>]*rel=["']apple-touch-icon(?:-precomposed)?["'][^>]*href=["']([^"']+)["']/i,
-            /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']apple-touch-icon(?:-precomposed)?["']/i,
-            /<link[^>]*rel=["']bookmark["'][^>]*href=["']([^"']+)["']/i,
-            /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']bookmark["']/i,
-            // 通用 link 標籤（任何包含 favicon 的 href）
-            /<link[^>]*href=["']([^"']*favicon[^"']*)["']/i,
-            /<link[^>]*href=["']([^"']*icon[^"']*)["']/i,
-        ];
-        
-        // 嘗試每個模式
-        for (const pattern of faviconPatterns) {
-            const match = html.match(pattern);
-            if (match && match[1]) {
-                let faviconUrl = match[1];
-                
-                // 轉換相對 URL 為絕對 URL
-                if (!faviconUrl.startsWith('http')) {
-                    faviconUrl = faviconUrl.startsWith('/') 
-                        ? `${baseUrl.origin}${faviconUrl}`
-                        : `${baseUrl.origin}/${faviconUrl}`;
-                }
-                
-                return faviconUrl;
-            }
-        }
-        
-        return null;
-    } catch (err) {
-        return null;
-    }
-}
-
-function getFirstEnglishLetter(text) {
-    if (!text) return '?';
-    const match = text.match(/[a-zA-Z]/);
-    return match ? match[0].toUpperCase() : '?';
-}
-
-function createLetterIcon(text) {
-    const letter = getFirstEnglishLetter(text);
-    const colors = ['#7cc3ff', '#ad7cff', '#ffc47c', '#7cffad', '#ff7c9c'];
-    const colorIndex = text.charCodeAt(0) % colors.length;
-    const color = colors[colorIndex];
-    
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" r="18" fill="${color}" opacity="0.3"/>
-        <circle cx="18" cy="18" r="17" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/>
-        <text x="18" y="22" font-size="16" font-weight="bold" text-anchor="middle" fill="${color}">${letter}</text>
-    </svg>`;
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-
-function renderShortcuts() {
-    if (!$shortcutsScroll) return;
-    $shortcutsScroll.innerHTML = '';
-    const shortcuts = STATE.settings.shortcuts || [];
-    
-    for (let index = 0; index < shortcuts.length; index++) {
-        const sc = shortcuts[index];
-        const div = document.createElement('div');
-        div.className = 'shortcut-icon';
-        div.title = sc.title || sc.url;
-        div.dataset.url = sc.url;
-        div.dataset.index = index;
-        div.draggable = true;
-        
-        const img = document.createElement('img');
-        img.alt = sc.title || 'shortcut';
-        img.className = 'shortcut-img';
-        
-        // 優先級：已儲存的 favicon > 網站 origin/favicon.ico > DuckDuckGo > 預設 icon
-        const faviconCandidates = [
-            sc.favicon,
-            `${new URL(sc.url).origin}/favicon.ico`,
-            `https://icons.duckduckgo.com/ip3/${encodeURIComponent(getHostname(sc.url))}.ico`,
-            defaultIconDataUri()
-        ].filter(Boolean);
-        
-        let faviconIndex = 0;
-        const tryNextFavicon = () => {
-            if (faviconIndex >= faviconCandidates.length) {
-                // 所有 favicon 都失敗，顯示字母 icon
-                img.src = createLetterIcon(sc.title || sc.url);
-                return;
-            }
-            img.src = faviconCandidates[faviconIndex++];
-        };
-        
-        img.onerror = tryNextFavicon;
-        tryNextFavicon();
-        
-        const removeBtn = document.createElement('div');
-        removeBtn.className = 'remove-btn';
-        removeBtn.innerHTML = '×';
-        removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeShortcut(sc.url);
-        });
-        
-        div.appendChild(img);
-        div.appendChild(removeBtn);
-        
-        // 拖拽事件
-        div.addEventListener('dragstart', (e) => {
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', index);
-            div.style.opacity = '0.5';
-        });
-        
-        div.addEventListener('dragend', (e) => {
-            div.style.opacity = '1';
-        });
-        
-        div.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            div.style.borderColor = 'var(--accent)';
-        });
-        
-        div.addEventListener('dragleave', (e) => {
-            div.style.borderColor = 'var(--stroke)';
-        });
-        
-        div.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            div.style.borderColor = 'var(--stroke)';
-            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-            const toIndex = index;
-            
-            if (fromIndex !== toIndex) {
-                // 交換順序
-                const temp = shortcuts[fromIndex];
-                shortcuts[fromIndex] = shortcuts[toIndex];
-                shortcuts[toIndex] = temp;
-                STATE.settings.shortcuts = shortcuts;
-                await saveSettings(STATE.settings);
-                renderShortcuts();
-            }
-        });
-        
-        // 點擊打開連結（不是拖拽時）
-        div.addEventListener('click', (e) => {
-            if (e.target !== removeBtn) {
-                window.open(sc.url, '_blank');
-            }
-        });
-        
-        $shortcutsScroll.appendChild(div);
-    }
-    
-    updateShortcutsNavButtons();
-}
-
-function updateShortcutsNavButtons() {
-    if (!$shortcutsScroll) return;
-    const canScrollLeft = $shortcutsScroll.scrollLeft > 0;
-    const canScrollRight = $shortcutsScroll.scrollLeft < $shortcutsScroll.scrollWidth - $shortcutsScroll.clientWidth - 5;
-    const hasOverflow = $shortcutsScroll.scrollWidth > $shortcutsScroll.clientWidth;
-    
-    if ($shortcutsLeftBtn) {
-        $shortcutsLeftBtn.disabled = !canScrollLeft;
-        $shortcutsLeftBtn.style.display = hasOverflow ? 'flex' : 'none';
-    }
-    if ($shortcutsRightBtn) {
-        $shortcutsRightBtn.disabled = !canScrollRight;
-        $shortcutsRightBtn.style.display = hasOverflow ? 'flex' : 'none';
-    }
-}
-
-function scrollShortcuts(direction) {
-    if (!$shortcutsScroll) return;
-    const scrollAmount = 150;
-    $shortcutsScroll.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-    });
-    setTimeout(updateShortcutsNavButtons, 300);
-}
-
-async function addShortcut(url) {
-    try {
-        // 自動補充 protocol
-        let normalizedUrl = url.trim();
-        if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-            normalizedUrl = 'https://' + normalizedUrl;
-        }
-        
-        const urlObj = new URL(normalizedUrl);
-        const shortcuts = STATE.settings.shortcuts || [];
-        
-        // 檢查是否已存在（使用正規化後的 URL）
-        if (shortcuts.some(s => s.url === normalizedUrl)) {
-            alert(t('shortcutInvalid'));
-            return;
-        }
-        
-        // 獲取網站標題（嘗試從 history 或使用 hostname）
-        let title = '';
-        const hostname = urlObj.hostname;
-        const historyItem = STATE.items.find(it => it.url === normalizedUrl);
-        if (historyItem) {
-            title = historyItem.title || hostname;
-        } else {
-            title = hostname;
-        }
-        
-        // 嘗試自動提取 favicon
-        let favicon = null;
-        try {
-            favicon = await extractFaviconFromPage(normalizedUrl);
-        } catch (err) {
-            // 提取失敗，favicon 保持 null
-        }
-        
-        // 如果沒有提取到 favicon，嘗試標準位置
-        if (!favicon) {
-            favicon = `${urlObj.origin}/favicon.ico`;
-        }
-        
-        shortcuts.push({ url: normalizedUrl, title, favicon });
-        STATE.settings.shortcuts = shortcuts;
-        await saveSettings(STATE.settings);
-        renderShortcuts();
-        alert(t('shortcutAdded'));
-    } catch (err) {
-        alert(t('shortcutInvalid'));
-        console.log(err);
-    }
-}
-
-async function removeShortcut(url) {
-    const shortcuts = STATE.settings.shortcuts || [];
-    STATE.settings.shortcuts = shortcuts.filter(s => s.url !== url);
-    await saveSettings(STATE.settings);
-    renderShortcuts();
-    alert(t('shortcutRemoved'));
 }
 
 // 更新 UI 文本
@@ -963,14 +683,6 @@ function updateUIText() {
     const focusCloseBtn = document.getElementById('focusCloseBtn');
     if (focusCloseBtn) focusCloseBtn.textContent = t('btnBack');
 
-    // 更新 shortcuts dialog
-    const addShortcutTitle = document.getElementById('addShortcutTitle');
-    if (addShortcutTitle) addShortcutTitle.textContent = t('shortcutsTitle');
-    
-    if ($shortcutUrlInput) $shortcutUrlInput.placeholder = t('shortcutUrlPlaceholder');
-    if ($shortcutCancelBtn) $shortcutCancelBtn.textContent = t('btnCancel');
-    if ($shortcutConfirmBtn) $shortcutConfirmBtn.textContent = t('btnAddShortcut');
-
     // 更新 curtain button
     updateCurtainBtnLabel();
 }
@@ -992,9 +704,6 @@ async function init() {
     applyColumnCount(STATE.settings.ui.colCount || 3);
     updateCurtainBtnLabel();
     
-    // 初始化 shortcuts
-    renderShortcuts();
-
     await refreshAndRender();
 
     // 搜尋輸入
@@ -1048,53 +757,11 @@ async function init() {
         updateCurtainBtnLabel();
     });
 
-    // Shortcuts 事件監聽
-    $addShortcutBtn?.addEventListener('click', () => {
-        $shortcutUrlInput.value = '';
-        $addShortcutDialog.showModal();
-        $shortcutUrlInput.focus();
-    });
-
-    $shortcutCancelBtn?.addEventListener('click', () => {
-        $addShortcutDialog.close('cancel');
-    });
-
-    $shortcutConfirmBtn?.addEventListener('click', async () => {
-        const url = $shortcutUrlInput.value.trim();
-        if (url) {
-            await addShortcut(url);
-            $addShortcutDialog.close('confirm');
-        }
-    });
-
-    $shortcutUrlInput?.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter') {
-            const url = $shortcutUrlInput.value.trim();
-            if (url) {
-                await addShortcut(url);
-                $addShortcutDialog.close('confirm');
-            }
-        }
-    });
-
-    $shortcutsLeftBtn?.addEventListener('click', () => scrollShortcuts('left'));
-    $shortcutsRightBtn?.addEventListener('click', () => scrollShortcuts('right'));
-
-    $shortcutsScroll?.addEventListener('scroll', updateShortcutsNavButtons);
-    window.addEventListener('resize', updateShortcutsNavButtons);
-
     // 點擊對話框外的空白區關閉
     $settingsDialog.addEventListener('click', (e) => {
         const rect = $settingsDialog.getBoundingClientRect();
         const inDialog = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
         if (!inDialog) $settingsDialog.close('cancel');
-    });
-
-    // Add shortcut modal 點擊外部關閉
-    $addShortcutDialog?.addEventListener('click', (e) => {
-        const rect = $addShortcutDialog.getBoundingClientRect();
-        const inDialog = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-        if (!inDialog) $addShortcutDialog.close('cancel');
     });
 
     // 欄位數即時變更

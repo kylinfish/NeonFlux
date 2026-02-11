@@ -86,121 +86,6 @@
 
       .title { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
       
-      .shortcuts-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-        min-width: 200px;
-      }
-      
-      .shortcuts-scroll {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-behavior: smooth;
-        padding: 4px 0;
-        flex: 1;
-        min-width: 0;
-      }
-      
-      .shortcuts-scroll::-webkit-scrollbar {
-        height: 4px;
-      }
-      
-      .shortcuts-scroll::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 2px;
-      }
-      
-      .shortcuts-scroll::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      
-      .shortcut-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--glass);
-        border: 1px solid var(--stroke);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        cursor: grab;
-        transition: all 0.2s ease;
-        position: relative;
-        z-index: 1;
-      }
-      
-      .shortcut-icon:active {
-        cursor: grabbing;
-      }
-      
-      .shortcut-icon:hover {
-        background: var(--glass-strong);
-        transform: scale(1.1);
-      }
-      
-      .shortcut-icon[draggable="true"]:dragover {
-        border-color: var(--accent);
-        background: rgba(124, 195, 255, 0.15);
-      }
-      
-      .shortcut-icon img {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-      }
-      
-      .shortcut-icon .remove-btn {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        width: 18px;
-        height: 18px;
-        background: rgba(220, 38, 38, 0.9);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 11px;
-        font-weight: bold;
-        cursor: pointer;
-        opacity: 0;
-        transition: all 0.2s ease;
-        border: 1px solid rgba(255,255,255,0.3);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        z-index: 10;
-      }
-      
-      .shortcut-icon:hover .remove-btn {
-        top: -6px;
-        right: -6px;
-        opacity: 1;
-      }
-      
-      .shortcuts-nav {
-        display: flex;
-        gap: 4px;
-        flex-shrink: 0;
-      }
-      
-      .shortcuts-nav button {
-        width: 28px;
-        height: 28px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .shortcuts-nav button:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-      }
       .logo {
         width: 48px; height: 48px; border-radius: 12px;
         background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
@@ -214,7 +99,7 @@
       h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
       .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
-      .controls { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+      .controls { display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-left: auto; }
       .search { position: relative; }
       .search input {
         width: 42vw; min-width: 260px; max-width: 300px;
@@ -263,7 +148,6 @@
       @media (max-width: 540px) {
         header { flex-wrap: wrap; }
         .title { width: 100%; }
-        .shortcuts-container { width: 100%; min-width: auto; }
         .controls { width: 100%; justify-content: space-between; }
         .search input { width: 100%; min-width: 0; }
         main { inset: 110px 0 0 0; }
@@ -349,7 +233,6 @@
       main::-webkit-scrollbar-track { background: transparent; }
 
       /* Dialogs */
-      #addShortcutDialog::backdrop,
       #focusDialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); }
 
       #settingsDialog::backdrop {
@@ -675,8 +558,6 @@
       }
 
       
-      #addShortcutDialog { border: 1px solid var(--stroke); border-radius: 16px; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); }
-      
       #focusDialog { border: 1px solid var(--stroke); border-radius: 0; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); width: 80vw; height: 100vh;  }
       .focus-wrap { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
       .focus-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--stroke); }
@@ -698,14 +579,6 @@
         <div>
           <h1>NeonFlux <span class="sub" style="margin-left:3px">霓虹流</span></h1> 
           <div class="sub">自定義歷史紀錄分類</div>
-        </div>
-      </div>
-      <div class="shortcuts-container" id="shortcutsContainer">
-        <div class="shortcuts-scroll" id="shortcutsScroll"></div>
-        <div class="shortcuts-nav">
-          <button class="btn" id="shortcutsLeftBtn" title="向左滑動" style="display:none;"></button>
-          <button class="btn" id="shortcutsRightBtn" title="向右滑動" style="display:none;"></button>
-          <button class="btn" id="addShortcutBtn" title="新增快速連結"></button>
         </div>
       </div>
       <div class="controls">
@@ -786,20 +659,6 @@
                 <button class="btn" id="saveCategoriesUIButton" type="button">儲存分類</button>
               </div>
             </div>
-          </div>
-        </div>
-      </form>
-    </dialog>
-
-    <!-- Add Shortcut Modal -->
-    <dialog id="addShortcutDialog">
-      <form method="dialog" style="min-width: 340px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
-        <h3 id="addShortcutTitle" style="margin:0 0 12px 0;">新增快速連結</h3>
-        <div style="display:grid; gap:12px;">
-          <input id="shortcutUrlInput" type="url" placeholder="https://example.com" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-          <div style="display:flex; gap:8px; justify-content:flex-end;">
-            <button class="btn" type="button" value="cancel" id="shortcutCancelBtn">取消</button>
-            <button class="btn" type="button" value="confirm" id="shortcutConfirmBtn">新增</button>
           </div>
         </div>
       </form>
