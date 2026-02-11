@@ -6,7 +6,7 @@
     <title>NeonFlux</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- App icons -->
     <link rel="icon" type="image/png" href="icon_white.png">
     <link rel="icon" type="image/png" href="icon_white.png" media="(prefers-color-scheme: dark)">
@@ -22,6 +22,11 @@
         --text: #e9eef6;
         --muted: #b6c2d0;
         --accent: #7cc3ff;
+        --settings-bg: rgba(14, 20, 30, 0.9);
+        --settings-panel: rgba(22, 30, 44, 0.88);
+        --settings-border: rgba(170, 196, 235, 0.22);
+        --settings-highlight: rgba(124, 195, 255, 0.18);
+        --settings-glow: rgba(124, 195, 255, 0.45);
         --aws: 210, 94%, 62%;
         --gitlab: 16, 93%, 61%;
         --figma: 280, 79%, 66%;
@@ -346,6 +351,210 @@
       /* Dialogs */
       #addShortcutDialog::backdrop,
       #focusDialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); }
+
+      #settingsDialog::backdrop {
+        background: linear-gradient(120deg, rgba(8,12,18,0.8), rgba(6,10,16,0.65));
+        backdrop-filter: blur(10px) saturate(130%);
+      }
+
+      .settings-panel {
+        position: relative;
+        min-width: 1080px;
+        max-width: 1120px;
+        max-height: 80vh;
+        border-radius: 20px;
+        padding: 18px;
+        background: radial-gradient(140% 120% at 10% 0%, rgba(124,195,255,0.18), transparent 55%),
+                    radial-gradient(120% 120% at 100% 10%, rgba(255,196,124,0.16), transparent 55%),
+                    var(--settings-panel);
+        border: 1px solid var(--settings-border);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset;
+        color: var(--text);
+        backdrop-filter: blur(14px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .settings-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(255,255,255,0.08), transparent 40%, rgba(124,195,255,0.12));
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .settings-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .settings-title {
+        font-family: "Bricolage Grotesque", Inter, system-ui, sans-serif;
+        font-size: 20px;
+        letter-spacing: 0.4px;
+        margin: 0;
+      }
+
+      .settings-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .settings-section {
+        border-radius: 16px;
+        padding: 16px;
+        background: rgba(10,14,22,0.35);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .settings-section-title {
+        color: var(--muted);
+        font-size: 13px;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .settings-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 6px;
+        border-bottom: 1px dashed rgba(255,255,255,0.06);
+      }
+
+      .settings-row:last-of-type { border-bottom: none; }
+
+      .settings-label {
+        font-size: 14px;
+        color: var(--text);
+      }
+
+      .settings-input,
+      .settings-select {
+        width: 140px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .settings-input:focus,
+      .settings-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(124,195,255,0.18);
+      }
+
+      .settings-switch {
+        appearance: none;
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+      }
+
+      .settings-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #f2f6ff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        transition: transform 0.2s ease;
+      }
+
+      .settings-switch:checked {
+        background: linear-gradient(120deg, rgba(124,195,255,0.9), rgba(124,195,255,0.5));
+        border-color: rgba(124,195,255,0.8);
+        box-shadow: 0 0 0 3px rgba(124,195,255,0.15);
+      }
+
+      .settings-switch:checked::after {
+        transform: translateX(20px);
+      }
+
+      .settings-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 12px;
+      }
+
+      .settings-actions .btn {
+        width: 110px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.16);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .settings-actions .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+      }
+
+      .settings-details {
+        border-radius: 16px;
+        padding: 16px;
+        background: rgba(10,14,22,0.25);
+        border: 1px dashed rgba(255,255,255,0.08);
+        display: grid;
+        grid-template-rows: auto 1fr;
+        min-height: 0;
+      }
+
+      .settings-summary {
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .settings-categories {
+        display: grid;
+        gap: 10px;
+        overflow: auto;
+        min-height: 0;
+        padding-right: 4px;
+      }
+
+      .settings-categories::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .settings-categories::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.18);
+        border-radius: 999px;
+      }
+
+      .settings-categories::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
       
       #addShortcutDialog { border: 1px solid var(--stroke); border-radius: 16px; padding: 0; background: rgba(20,28,40,0.92); color: var(--text); }
       
@@ -399,68 +608,66 @@
 
     <!-- Settings modal -->
     <dialog id="settingsDialog">
-      <form method="dialog" style="min-width: 340px; max-width: 720px; background: rgba(20,28,40,0.8); color: var(--text); border:1px solid var(--stroke); border-radius: 16px; padding: 16px; backdrop-filter: blur(14px);">
-        <h3 id="settingsTitle" style="margin:0 0 10px 0;">設定</h3>
-        <div style="display:grid; gap:12px;">
-          <fieldset style="border:1px solid var(--stroke); border-radius:12px; padding:10px;">
-            <legend id="settingsGeneralLegend" style="color:var(--muted);">一般</legend>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="settingsCategoryLimitLabel">分類顯示數量（上限）</span>
-              <input id="limitInput" type="number" min="3" max="100" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+      <form method="dialog" class="settings-panel">
+        <div class="settings-head">
+          <h3 id="settingsTitle" class="settings-title">設定</h3>
+        </div>
+        <div class="settings-body">
+          <div class="settings-section">
+            <div id="settingsGeneralLegend" class="settings-section-title">一般</div>
+            <label class="settings-row">
+              <span id="settingsCategoryLimitLabel" class="settings-label">分類顯示數量（上限）</span>
+              <input id="limitInput" type="number" min="1" max="100" step="1" class="settings-input" />
             </label>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="settingsRecentDaysLabel">僅顯示近 N 天</span>
-              <input id="daysInput" type="number" min="1" max="365" step="1" style="width:100px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+            <label class="settings-row">
+              <span id="settingsRecentDaysLabel" class="settings-label">僅顯示近 N 天</span>
+              <input id="daysInput" type="number" min="1" max="365" step="1" class="settings-input" />
             </label>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="settingsSortModeLabel">排序模式</span>
-              <select id="sortSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+            <label class="settings-row">
+              <span id="settingsSortModeLabel" class="settings-label">排序模式</span>
+              <select id="sortSelect" class="settings-select">
                 <option value="latest" id="sortLatestOption">最新在前</option>
                 <option value="smart" id="sortSmartOption">智慧排序</option>
               </select>
             </label>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="settingsColCountLabel">每列分類數（欄位數）</span>
-              <select id="colCountSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+            <label class="settings-row">
+              <span id="settingsColCountLabel" class="settings-label">每列分類數（欄位數）</span>
+              <select id="colCountSelect" class="settings-select">
                 <option value="1" id="colCount1Option">1 欄</option>
                 <option value="2" id="colCount2Option">2 欄</option>
                 <option value="3" id="colCount3Option">3 欄</option>
                 <option value="4" id="colCount4Option">4 欄</option>
               </select>
             </label>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="langLabel">語言</span>
-              <select id="langSelect" style="width:140px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+            <label class="settings-row">
+              <span id="langLabel" class="settings-label">語言</span>
+              <select id="langSelect" class="settings-select">
                 <option value="zh">中文</option>
                 <option value="en">English</option>
               </select>
             </label>
-            <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-              <span id="settingsNormalizeGroupLabel">合併相同路徑（忽略參數）</span>
-              <input id="normalizeGroupToggle" type="checkbox" />
+            <label class="settings-row">
+              <span id="settingsNormalizeGroupLabel" class="settings-label">合併相同路徑（忽略參數）</span>
+              <input id="normalizeGroupToggle" type="checkbox" class="settings-switch" />
             </label>
 
-            <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-              <button class="btn" style="width:100px" value="cancel" id="settingsCancelBtn">取消</button>
-              <button class="btn" style="width:100px" value="confirm" id="settingsSaveBtn">儲存</button>
+            <div class="settings-actions">
+              <button class="btn" value="cancel" id="settingsCancelBtn">取消</button>
+              <button class="btn" value="confirm" id="settingsSaveBtn">儲存</button>
             </div>
-          </fieldset>
+          </div>
 
-          <details>
-            <summary id="settingsCategoryManagementSummary" style="cursor:pointer; color:var(--muted);">分類管理（進階）</summary>
-            <div style="display:grid; gap:8px; margin-top:8px;">
-
-
-             <div id="categoriesUI" style="display:grid; gap:10px;"></div>
-            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
-              <button class="btn" id="addCategoryBtn" type="button">新增分類</button>
-              <button class="btn" id="resetCategoriesUIButton" type="button">重置為預設</button>
-              <button class="btn" id="saveCategoriesUIButton" type="button">儲存分類</button>
+          <div class="settings-section settings-details">
+            <div id="settingsCategoryManagementSummary" class="settings-section-title">分類管理（進階）</div>
+            <div class="settings-categories">
+              <div id="categoriesUI" style="display:grid; gap:10px;"></div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+                <button class="btn" id="addCategoryBtn" type="button">新增分類</button>
+                <button class="btn" id="resetCategoriesUIButton" type="button">重置為預設</button>
+                <button class="btn" id="saveCategoriesUIButton" type="button">儲存分類</button>
+              </div>
             </div>
-
-
-            </div>
-          </details>
+          </div>
         </div>
       </form>
     </dialog>
