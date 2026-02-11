@@ -208,6 +208,15 @@ function getHostname(url) {
     try { return new URL(url).hostname; } catch { return ''; }
 }
 
+function normalizeUrlForGroup(url) {
+    try {
+        const u = new URL(url);
+        return `${u.origin}${u.pathname}`;
+    } catch {
+        return url;
+    }
+}
+
 function getFallbackFavicon(url) {
     const host = getHostname(url);
     if (!host) return defaultIconDataUri();
@@ -348,7 +357,7 @@ function categorize(items) {
     for (const c of order) cats[c.key] = [];
 
     for (const it of items) {
-        const url = it.url || '';
+        const url = it.matchUrl || it.url || '';
         for (const c of order) {
             if (matchUrl(url, c.matchers)) { cats[c.key].push(it); break; }
         }
@@ -397,14 +406,23 @@ async function fetchHistory() {
         const url = r.url;
         if (!url) continue;
         if (!/^https?:\/\//i.test(url)) continue;
-        const prev = map.get(url);
+        const normalizedUrl = normalizeUrlForGroup(url);
+        const prev = map.get(normalizedUrl);
         if (prev) {
             prev.visitCount = (prev.visitCount || 1) + (r.visitCount || 1);
-            prev.lastVisitTime = Math.max(prev.lastVisitTime || 0, r.lastVisitTime || 0);
-            prev.title = prev.title || r.title;
+            const prevTime = prev.lastVisitTime || 0;
+            const nextTime = r.lastVisitTime || 0;
+            if (nextTime >= prevTime) {
+                prev.lastVisitTime = nextTime;
+                prev.title = r.title || prev.title;
+                prev.matchUrl = url;
+            } else {
+                prev.lastVisitTime = prevTime;
+            }
         } else {
-            map.set(url, {
-                url,
+            map.set(normalizedUrl, {
+                url: normalizedUrl,
+                matchUrl: url,
                 title: r.title || '',
                 lastVisitTime: r.lastVisitTime || 0,
                 visitCount: r.visitCount || 1
@@ -414,7 +432,10 @@ async function fetchHistory() {
     STATE.items = [...map.values()];
     // 僅保留可能屬於任一分類的項，做初步過濾
     const order = (STATE.settings.categories || []).filter(c => c.enabled !== false);
-    STATE.filtered = STATE.items.filter(it => order.some(c => matchUrl(it.url, c.matchers)));
+    STATE.filtered = STATE.items.filter(it => {
+        const url = it.matchUrl || it.url || '';
+        return order.some(c => matchUrl(url, c.matchers));
+    });
 }
 
 function renderListItems($container, list, opts = {}) {
