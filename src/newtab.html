@@ -216,6 +216,8 @@
       .pin.active { color: var(--accent); border-color: rgba(124,195,255,0.7); background: rgba(124,195,255,0.08); border: 1.5px solid; }
 
       .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0 28px; }
+      .footer a { color: var(--accent); text-decoration: none; margin-left: 6px; }
+      .footer a:hover { text-decoration: underline; }
 
       /* Category color accents */
       .aws .dot { background: hsl(var(--aws)); }
@@ -595,7 +597,10 @@
 
     <main>
       <div id="grid" class="grid"></div>
-      <div class="footer">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</div>
+      <div class="footer">
+        <span id="footerText">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</span>
+        <a id="rateLink" href="https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb" target="_blank" rel="noreferrer">給 5 星好評</a>
+      </div>
     </main>
 
     <!-- Settings modal -->

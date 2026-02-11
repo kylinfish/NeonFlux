@@ -59,6 +59,7 @@ const i18n = {
     
     // Footer
     footerText: '瀏覽記錄自動分類 · 本機儲存 · 隱私優先',
+    footerRate: '給 5 星好評',
     
     // Messages
     msgCurtainHint: '點一下以顯示',
@@ -142,6 +143,7 @@ const i18n = {
     
     // Footer
     footerText: 'Auto-categorize browsing history · Local storage · Privacy first',
+    footerRate: 'Rate us 5 stars',
     
     // Messages
     msgCurtainHint: 'Click to reveal',

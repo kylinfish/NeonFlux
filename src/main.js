@@ -618,7 +618,10 @@ function updateUIText() {
     $settingsBtn.title = t('btnSettings');
 
     // 更新 footer
-    document.querySelector('.footer').textContent = t('footerText');
+    const footerText = document.getElementById('footerText');
+    if (footerText) footerText.textContent = t('footerText');
+    const rateLink = document.getElementById('rateLink');
+    if (rateLink) rateLink.textContent = t('footerRate');
 
     // 更新 settings dialog 文本
     const settingsTitle = document.getElementById('settingsTitle');
