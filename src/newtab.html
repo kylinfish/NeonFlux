@@ -403,7 +403,7 @@
 
       .settings-body {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 0.4fr 0.6fr;
         gap: 16px;
         flex: 1;
         min-height: 0;
@@ -496,6 +496,11 @@
         transform: translateX(20px);
       }
 
+      .settings-categories .cat-toggle {
+        transform: scale(0.92);
+        transform-origin: left center;
+      }
+
       .settings-actions {
         display: flex;
         gap: 10px;
@@ -536,10 +541,10 @@
 
       .settings-categories {
         display: grid;
-        gap: 10px;
+        gap: 14px;
         overflow: auto;
         min-height: 0;
-        padding-right: 4px;
+        padding: 6px 8px 8px 4px;
       }
 
       .settings-categories::-webkit-scrollbar {
@@ -553,6 +558,120 @@
 
       .settings-categories::-webkit-scrollbar-track {
         background: transparent;
+      }
+
+      .settings-categories .cat {
+        padding: 12px;
+        border-radius: 14px;
+        background:
+          linear-gradient(140deg, rgba(124,195,255,0.08), rgba(255,255,255,0.03) 55%, rgba(255,196,124,0.06)),
+          rgba(8,12,18,0.35);
+        border: 1px solid rgba(124,195,255,0.18);
+        box-shadow: 0 10px 26px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03);
+        backdrop-filter: blur(10px);
+        display: grid;
+        gap: 10px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      }
+
+      .settings-categories .cat:hover {
+        transform: translateY(-1px);
+        border-color: rgba(124,195,255,0.35);
+        box-shadow: 0 16px 34px rgba(0,0,0,0.35), 0 0 24px rgba(124,195,255,0.12);
+      }
+
+      .settings-categories .cat:focus-within {
+        border-color: rgba(124,195,255,0.6);
+        box-shadow: inset 0 0 0 2px rgba(124,195,255,0.4), 0 18px 38px rgba(0,0,0,0.4);
+      }
+
+      .settings-categories .cat:nth-child(odd) {
+        background:
+          linear-gradient(140deg, rgba(124,195,255,0.12), rgba(255,255,255,0.03) 55%, rgba(124,195,255,0.04)),
+          rgba(8,12,18,0.35);
+        border-color: rgba(124,195,255,0.22);
+      }
+
+      .settings-categories .cat:nth-child(even) {
+        background:
+          linear-gradient(140deg, rgba(255,196,124,0.12), rgba(255,255,255,0.03) 55%, rgba(124,195,255,0.04)),
+          rgba(8,12,18,0.35);
+        border-color: rgba(255,196,124,0.22);
+      }
+
+      .settings-categories .cat-header {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 10px 10px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .settings-categories .cat-actions {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+      }
+
+      .settings-categories .cat-actions .btn {
+        background: rgba(124,195,255,0.14);
+        border-color: rgba(124,195,255,0.3);
+        border-radius: 999px;
+      }
+
+      .settings-categories .cat-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.4fr;
+        gap: 10px;
+      }
+
+      .settings-categories .cat-fields input {
+        width: 100%;
+      }
+
+      .settings-categories .matchers {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.12);
+        border: 1px dashed rgba(255,255,255,0.06);
+      }
+
+      .settings-categories .matcher {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 8px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        font-size: 12px;
+      }
+
+      .settings-categories .matcher-actions {
+        display: flex;
+        justify-content: flex-start;
+      }
+
+      .settings-categories .matcher-actions .btn {
+        background: rgba(124,195,255,0.12);
+        border-color: rgba(124,195,255,0.28);
+      }
+
+      .settings-categories .cat input[type="text"],
+      .settings-categories .cat input[type="url"],
+      .settings-categories .cat input[type="number"],
+      .settings-categories .cat select {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--stroke);
+        background: rgba(255,255,255,0.06);
+        color: var(--text);
+        font-size: 12px;
       }
 
       

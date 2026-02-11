@@ -257,41 +257,38 @@ function renderCategoriesUI(cats = []) {
         const div = document.createElement('div');
         div.className = 'cat';
         div.dataset.key = cat.key;
-        div.style.border = '1px solid var(--stroke)';
-        div.style.borderRadius = '10px';
-        div.style.padding = '8px';
-        div.style.display = 'grid';
-        div.style.gap = '6px';
 
         const enabled = cat.enabled !== false ? 'checked' : '';
         const matchers = Array.isArray(cat.matchers) ? cat.matchers : [];
         const matcherRows = matchers.map(m => `
-      <div class="matcher" style="display:flex; gap:8px; align-items:center;">
-        <select class="m-type" style="width:110px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);">
+      <div class="matcher">
+        <select class="m-type" style="width:110px;">
           <option value="domain" ${m.type === 'domain' ? 'selected' : ''}>domain</option>
           <option value="prefix" ${m.type === 'prefix' ? 'selected' : ''}>prefix</option>
           <option value="regex" ${m.type === 'regex' ? 'selected' : ''}>regex</option>
         </select>
-        <input class="m-value" type="text" value="${escapeHtml(m.value || '')}" placeholder="${t('matcherValue')}" style="flex:1; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
+        <input class="m-value" type="text" value="${escapeHtml(m.value || '')}" placeholder="${t('matcherValue')}" style="flex:1;" />
         <button type="button" class="btn remove-matcher">${getSvgIcon('dash')}</button>
       </div>
     `).join('');
 
         div.innerHTML = `
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <input type="checkbox" class="cat-enabled" ${enabled} />
-        <input type="text" class="cat-label" value="${escapeHtml(cat.label || '')}" placeholder="${t('categoryLabel')}" style="flex:1 1 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-        <input type="text" class="cat-key" value="${escapeHtml(cat.key || '')}" placeholder="${t('categoryKey')}" title="僅限小寫英數與 -，需唯一" style="flex:0 0 160px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-        <input type="url" class="cat-icon" value="${escapeHtml(cat.iconUrl || '')}" placeholder="${t('categoryIcon')}" style="flex:1 1 220px; min-width:220px; padding:6px 8px; border-radius:8px; border:1px solid var(--stroke); background: rgba(255,255,255,0.06); color:var(--text);" />
-        <div style="display:flex; gap:6px;">
+      <div class="cat-header">
+        <input type="checkbox" class="cat-enabled settings-switch cat-toggle" ${enabled} />
+        <div class="cat-actions">
           <button type="button" class="btn cat-up" title="${t('btnMoveUp')}">${getSvgIcon('chevronUp')}</button>
           <button type="button" class="btn cat-down" title="${t('btnMoveDown')}">${getSvgIcon('chevronDown')}</button>
           <button type="button" class="btn cat-delete" title="${t('btnDeleteCategory')}">${getSvgIcon('trash')}</button>
         </div>
       </div>
-      <div class="matchers" style="display:grid; gap:6px;">
+      <div class="cat-fields">
+        <input type="text" class="cat-label" value="${escapeHtml(cat.label || '')}" placeholder="${t('categoryLabel')}" />
+        <input type="text" class="cat-key" value="${escapeHtml(cat.key || '')}" placeholder="${t('categoryKey')}" title="僅限小寫英數與 -，需唯一" />
+        <input type="url" class="cat-icon" value="${escapeHtml(cat.iconUrl || '')}" placeholder="${t('categoryIcon')}" />
+      </div>
+      <div class="matchers">
         ${matcherRows}
-        <div><button type="button" class="btn add-matcher">${t('btnAddMatcher')}</button></div>
+        <div class="matcher-actions"><button type="button" class="btn add-matcher">${t('btnAddMatcher')}</button></div>
       </div>
     `;
         $categoriesUI.appendChild(div);
