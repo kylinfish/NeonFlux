@@ -34,6 +34,7 @@ const i18n = {
     settingsSortLatest: '最新在前',
     settingsSortSmart: '智慧排序',
     settingsColCount: '每列分類數（欄位數）',
+    settingsNormalizeGroup: '合併相同路徑（忽略參數）',
     settingsSetAsDefault: '設為預設新分頁',
     settingsCategoryManagement: '分類管理（進階）',
     
@@ -116,6 +117,7 @@ const i18n = {
     settingsSortLatest: 'Latest First',
     settingsSortSmart: 'Smart Sort',
     settingsColCount: 'Columns per Row',
+    settingsNormalizeGroup: 'Group by Path (ignore params)',
     settingsSetAsDefault: 'Set as Default New Tab',
     settingsCategoryManagement: 'Category Management (Advanced)',
     

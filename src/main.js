@@ -102,7 +102,7 @@ const DEFAULT_SETTINGS = {
     perCategoryLimit: 12,
     recentDays: 60,
     sortBy: 'latest', // 'latest' | 'smart'
-    ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false, privacyCurtainLocked: false },
+    ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false, privacyCurtainLocked: false, normalizeGroupEnabled: true },
     pinned: {},
     shortcuts: [], // [{url, title, favicon}]
     categories: defaultCategories()
@@ -119,6 +119,7 @@ const $limitInput = document.getElementById('limitInput');
 const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
 const $colCountSelect = document.getElementById('colCountSelect');
+const $normalizeGroupToggle = document.getElementById('normalizeGroupToggle');
 
 // 分類管理（UI）
 const $categoriesUI = document.getElementById('categoriesUI');
@@ -177,6 +178,9 @@ function loadSettings() {
             if (!s.sortBy) s.sortBy = 'latest';
             // 確保有 shortcuts 陣列
             if (!Array.isArray(s.shortcuts)) s.shortcuts = [];
+            if (typeof s.ui.normalizeGroupEnabled === 'undefined') {
+                s.ui.normalizeGroupEnabled = true;
+            }
 
             // 確保有 privacyCurtainLocked 屬性
             if (typeof s.ui.privacyCurtainLocked === 'undefined') {
@@ -209,6 +213,7 @@ function getHostname(url) {
 }
 
 function normalizeUrlForGroup(url) {
+    if (!STATE.settings.ui?.normalizeGroupEnabled) return url;
     try {
         const u = new URL(url);
         return `${u.origin}${u.pathname}`;
@@ -922,6 +927,8 @@ function updateUIText() {
 
     const settingsColCountLabel = document.getElementById('settingsColCountLabel');
     if (settingsColCountLabel) settingsColCountLabel.textContent = t('settingsColCount');
+    const settingsNormalizeGroupLabel = document.getElementById('settingsNormalizeGroupLabel');
+    if (settingsNormalizeGroupLabel) settingsNormalizeGroupLabel.textContent = t('settingsNormalizeGroup');
 
     const colCount1Option = document.getElementById('colCount1Option');
     if (colCount1Option) colCount1Option.textContent = t('colCount1');
@@ -983,6 +990,7 @@ async function init() {
     $daysInput.value = STATE.settings.recentDays;
     if ($sortSelect) $sortSelect.value = STATE.settings.sortBy || 'latest';
     if ($colCountSelect) $colCountSelect.value = String(STATE.settings.ui.colCount || 3);
+    if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
     applyColumnCount(STATE.settings.ui.colCount || 3);
     updateCurtainBtnLabel();
@@ -1187,6 +1195,9 @@ async function init() {
             STATE.settings.recentDays = recentDays;
             STATE.settings.sortBy = sortBy;
             STATE.settings.ui.colCount = colCount;
+            if ($normalizeGroupToggle) {
+                STATE.settings.ui.normalizeGroupEnabled = !!$normalizeGroupToggle.checked;
+            }
 
 
             await saveSettings(STATE.settings);
