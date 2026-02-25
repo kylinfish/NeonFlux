@@ -283,6 +283,11 @@ function renderCategoriesUI(cats = []) {
         <div class="matcher-actions"><button type="button" class="btn add-matcher">${t('btnAddMatcher')}</button></div>
       </div>
     `;
+        div.dataset.enabled = cat.enabled !== false ? '1' : '0';
+        const $toggle = div.querySelector('.cat-enabled');
+        $toggle?.addEventListener('change', () => {
+            div.dataset.enabled = $toggle.checked ? '1' : '0';
+        });
         $categoriesUI.appendChild(div);
     }
 }
