@@ -102,7 +102,13 @@ const DEFAULT_SETTINGS = {
     perCategoryLimit: 12,
     recentDays: 60,
     sortBy: 'latest', // 'latest' | 'smart'
-    ui: { fixHeightEnabled: true, colCount: 3, privacyCurtainEnabled: false, privacyCurtainLocked: false, normalizeGroupEnabled: true },
+    ui: {
+        fixHeightEnabled: true,
+        colCount: 3,
+        privacyCurtainEnabled: false,
+        privacyCurtainLocked: false,
+        normalizeGroupEnabled: true,
+    },
     pinned: {},
     categories: defaultCategories()
 };
@@ -686,12 +692,14 @@ function updateUIText() {
     const focusCloseBtn = document.getElementById('focusCloseBtn');
     if (focusCloseBtn) focusCloseBtn.textContent = t('btnBack');
 
+
     // 更新 curtain button
     updateCurtainBtnLabel();
 }
 
 async function init() {
     STATE.settings = await loadSettings();
+
 
     // 初始化 icons 和語言
     initializeIcons();
@@ -702,6 +710,7 @@ async function init() {
     $daysInput.value = STATE.settings.recentDays;
     if ($sortSelect) $sortSelect.value = STATE.settings.sortBy || 'latest';
     if ($colCountSelect) $colCountSelect.value = String(STATE.settings.ui.colCount || 3);
+    if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
     applyColumnCount(STATE.settings.ui.colCount || 3);
@@ -736,6 +745,7 @@ async function init() {
         const cats = categorize(STATE.filtered);
         renderGrid(cats, $search.value);
     });
+
 
     // 門簾開關按鈕 - 切換鎖定狀態或打開/關閉門簾
     $curtainBtn?.addEventListener('click', async () => {
@@ -865,8 +875,6 @@ async function init() {
             if ($normalizeGroupToggle) {
                 STATE.settings.ui.normalizeGroupEnabled = !!$normalizeGroupToggle.checked;
             }
-
-
             await saveSettings(STATE.settings);
             applyColumnCount(colCount);
             await refreshAndRender();

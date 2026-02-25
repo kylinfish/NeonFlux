@@ -3,13 +3,14 @@
     "name": "NeonFlux",
     "version": "1.0.0",
     "description": "A customizable new tab page that categorizes frequently visited links by workflow with a liquid glass fluid grid UI.",
-    "chrome_url_overrides": {
-        "newtab": "newtab.html"
-    },
     "permissions": [
         "history",
-        "storage"
+        "storage",
+        "tabs"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "icons": {
         "16": "icon_white.png",
         "32": "icon_white.png",
