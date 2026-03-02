@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="zh-Hant" id="htmlRoot">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NeonFlux - Release Logs</title>
+  <meta name="description" content="NeonFlux Release Logs - 功能更新、介面優化與版本變更紀錄。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="icon_white.png">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --glass: rgba(255,255,255,0.07);
+      --stroke: rgba(255,255,255,0.12);
+      --text: #ebf1f8;
+      --muted: #aeb9c7;
+      --accent: #7cc3ff;
+      --ok: #7ce0b4;
+      --warn: #ffcb7b;
+      --danger: #ff9ca8;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: "Manrope", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(1200px 820px at 5% -10%, #162438 0%, transparent 60%),
+        radial-gradient(1000px 680px at 110% 20%, #1c2847 0%, transparent 62%),
+        radial-gradient(900px 650px at 50% 120%, #111b2d 0%, transparent 64%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,0.9), transparent 85%);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 20px 42px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--stroke);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .logo-section:hover { opacity: 0.86; }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(124,195,255,0.35), rgba(255,255,255,0.06));
+      border: 1px solid var(--stroke);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: 0.2px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 4px;
+      backdrop-filter: blur(10px);
+    }
+
+    .lang-btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .lang-btn.active {
+      color: var(--accent);
+      background: rgba(124,195,255,0.16);
+      border: 1px solid rgba(124,195,255,0.35);
+    }
+
+    .hero {
+      margin-bottom: 22px;
+      padding: 26px;
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      background: linear-gradient(170deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 14px 36px rgba(0,0,0,0.22);
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      background: linear-gradient(135deg, #7cc3ff, #9dd6ff 45%, #ffd59b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .meta-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.05);
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      margin-bottom: 20px;
+      padding-left: 4px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(124,195,255,0.7), rgba(124,195,255,0.15));
+      border-radius: 2px;
+    }
+
+    .release-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .timeline-node {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      margin-top: 16px;
+      margin-left: 12px;
+      border: 2px solid #b7e0ff;
+      background: #0f1d2f;
+      box-shadow: 0 0 0 4px rgba(124,195,255,0.2);
+      z-index: 1;
+    }
+
+    .release-card {
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.2);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.02);
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge.added { color: var(--ok); background: rgba(124,224,180,0.12); border-color: rgba(124,224,180,0.4); }
+    .badge.changed { color: var(--accent); background: rgba(124,195,255,0.12); border-color: rgba(124,195,255,0.4); }
+    .badge.removed { color: var(--danger); background: rgba(255,156,168,0.12); border-color: rgba(255,156,168,0.4); }
+    .badge.fixed { color: var(--warn); background: rgba(255,203,123,0.12); border-color: rgba(255,203,123,0.45); }
+
+    .card-body {
+      padding: 14px 16px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .card-body ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .card-body li {
+      margin-bottom: 8px;
+    }
+
+    .hash {
+      margin-left: 6px;
+      font-size: 11px;
+      color: #8fa1b6;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 1px 6px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .release-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .release-version {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--text);
+    }
+
+    .release-date {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .status.latest {
+      color: #9fe3c6;
+      background: rgba(124,224,180,0.12);
+      border-color: rgba(124,224,180,0.42);
+    }
+
+    .status.stable {
+      color: #b6cbde;
+      background: rgba(182,203,222,0.12);
+      border-color: rgba(182,203,222,0.32);
+    }
+
+    .section-block + .section-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,0.12);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--stroke);
+      color: var(--text);
+      text-decoration: none;
+      background: rgba(255,255,255,0.06);
+      transition: 0.2s ease;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .back:hover {
+      border-color: rgba(124,195,255,0.5);
+      background: rgba(124,195,255,0.15);
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding: 20px; }
+      .hero h2 { font-size: 28px; }
+      .container { padding: 18px 14px 32px; }
+      .card-head { padding: 12px; }
+      .card-body { padding: 12px; }
+      .timeline::before { left: 16px; }
+      .release-item { grid-template-columns: 36px 1fr; }
+      .timeline-node { margin-left: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+    <header>
+      <div class="logo-section" onclick="window.location.href='./index.html'">
+        <div class="logo"><img src="icon_white.png" alt="NeonFlux logo"></div>
+        <div class="brand">
+          <h1>NeonFlux</h1>
+          <p id="headerSub">版本更新紀錄</p>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">English</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h2 id="title">Release Logs</h2>
+      <p id="desc">從 commit <strong>c04c03308e960b</strong> 之後的功能更新，整理為可讀性更高的版本紀錄頁。</p>
+      <div class="meta-row">
+        <span class="meta-chip" id="metaRange">範圍：c04c03308e960b..HEAD</span>
+        <span class="meta-chip" id="metaUpdated">最後更新：2026-03-02</span>
+        <span class="meta-chip" id="metaTotal">共 8 筆 commits</span>
+      </div>
+    </section>
+
+    <section class="timeline" id="timelineList"></section>
+
+    <a class="back" href="./index.html" id="backLink">回到介紹頁</a>
+    <footer id="footer">NeonFlux Release Logs</footer>
+  </div>
+
+  <script>
+    const releaseI18n = {
+      zh: {
+        headerSub: '版本更新紀錄',
+        title: 'Release Logs',
+        desc: '從 commit c04c03308e960b 之後的功能更新，整理為可讀性更高的版本紀錄頁。',
+        metaRange: '範圍：c04c03308e960b..HEAD',
+        metaUpdated: '最後更新：2026-03-02',
+        metaTotal: '版本節點：{count}',
+        statusLatest: '最新',
+        statusStable: '已發布',
+        added: '新增',
+        changed: '調整',
+        removed: '移除',
+        fixed: '修正',
+        backLink: '回到介紹頁',
+        footer: 'NeonFlux 版本更新紀錄頁'
+      },
+      en: {
+        headerSub: 'Release Timeline',
+        title: 'Release Logs',
+        desc: 'A readable release page for updates after commit c04c03308e960b.',
+        metaRange: 'Range: c04c03308e960b..HEAD',
+        metaUpdated: 'Last Updated: 2026-03-02',
+        metaTotal: 'Release points: {count}',
+        statusLatest: 'latest',
+        statusStable: 'released',
+        added: 'Added',
+        changed: 'Changed',
+        removed: 'Removed',
+        fixed: 'Fixed',
+        backLink: 'Back to Intro',
+        footer: 'NeonFlux Release Logs'
+      }
+    };
+
+    // 後續新增版本時，直接在陣列最前面插入一個新節點即可（最新在最上面）
+    const releases = {
+      zh: [
+        {
+          version: 'v1.1.0',
+          date: '2026-03-02',
+          range: 'c04c03308e960b..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: 'URL 分組開關：可選擇「合併相同路徑（忽略參數）」', commit: '3b9d3c5' },
+                { text: 'Footer 新增 Chrome Web Store 5 星評分入口（含 i18n）', commit: 'afb1853' },
+                { text: '停用分類淡化視覺狀態，便於辨識目前是否啟用', commit: 'd82844c' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: '設定面板重新設計，提升資訊層次與操作效率', commit: '293bc95' },
+                { text: '分類編輯器版面優化，欄位與控制元件更聚焦', commit: '9ff8d33' },
+                { text: '移除 chrome_url_overrides，改由工具列圖示開新分頁啟動', commit: '67e9d3d' }
+              ]
+            },
+            {
+              type: 'removed',
+              items: [
+                { text: '移除 Shortcuts（快速連結）相關 UI 與邏輯', commit: 'b5d6d97' }
+              ]
+            },
+            {
+              type: 'fixed',
+              items: [
+                { text: '停用分類卡片阻擋互動，僅保留啟用開關可點擊', commit: '8e8b880' }
+              ]
+            }
+          ]
+        },
+        {
+          version: 'v1.0.0',
+          date: '2025-12-17',
+          range: 'Initial release',
+          status: 'stable',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: '首次發布：自動分類、搜尋、隱私門簾、多語系', commit: '' }
+              ]
+            }
+          ]
+        }
+      ],
+      en: [
+        {
+          version: 'v1.1.0',
+          date: '2026-03-02',
+          range: 'c04c03308e960b..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: 'URL grouping toggle: optionally merge same-path URLs (ignore params)', commit: '3b9d3c5' },
+                { text: '5-star rating link in footer with localized copy', commit: 'afb1853' },
+                { text: 'Disabled category dim state for clearer status recognition', commit: 'd82844c' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: 'Settings panel redesigned for clearer structure and faster workflow', commit: '293bc95' },
+                { text: 'Category editor layout refined for better field/action focus', commit: '9ff8d33' },
+                { text: 'Removed chrome_url_overrides; toolbar icon now opens NeonFlux in a new tab', commit: '67e9d3d' }
+              ]
+            },
+            {
+              type: 'removed',
+              items: [
+                { text: 'Removed Shortcuts UI and related logic', commit: 'b5d6d97' }
+              ]
+            },
+            {
+              type: 'fixed',
+              items: [
+                { text: 'Inactive category cards are non-interactive except the enable toggle', commit: '8e8b880' }
+              ]
+            }
+          ]
+        },
+        {
+          version: 'v1.0.0',
+          date: '2025-12-17',
+          range: 'Initial release',
+          status: 'stable',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: 'Initial release: auto categorization, search, privacy curtain, multilingual UI', commit: '' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    let currentLang = localStorage.getItem('neonflux-lang') || 'zh';
+
+    function renderTimeline(lang) {
+      const t = releaseI18n[lang];
+      const releaseList = releases[lang] || [];
+      const $list = document.getElementById('timelineList');
+      if (!$list) return;
+
+      $list.innerHTML = releaseList.map((rel) => {
+        const sectionsHtml = rel.sections.map((section) => {
+          const items = section.items.map((item) => `
+            <li>${item.text}${item.commit ? `<span class="hash">${item.commit}</span>` : ''}</li>
+          `).join('');
+          return `
+            <div class="section-block">
+              <div class="section-title">
+                <div class="card-title">${t[section.type] || section.type}</div>
+                <span class="badge ${section.type}">${section.type}</span>
+              </div>
+              <ul>${items}</ul>
+            </div>
+          `;
+        }).join('');
+
+        const statusLabel = rel.status === 'latest' ? t.statusLatest : t.statusStable;
+
+        return `
+          <article class="release-item">
+            <span class="timeline-node"></span>
+            <div class="release-card">
+              <div class="card-head">
+                <div class="release-meta">
+                  <span class="release-version">${rel.version}</span>
+                  <span class="release-date">${rel.date}</span>
+                  <span class="status ${rel.status}">${statusLabel}</span>
+                </div>
+                <span class="meta-chip">${rel.range}</span>
+              </div>
+              <div class="card-body">${sectionsHtml}</div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      const totalText = t.metaTotal.replace('{count}', String(releaseList.length));
+      const metaTotal = document.getElementById('metaTotal');
+      if (metaTotal) metaTotal.textContent = totalText;
+    }
+
+    function applyLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('neonflux-lang', lang);
+      const t = releaseI18n[lang];
+      Object.keys(t).forEach((key) => {
+        const el = document.getElementById(key);
+        if (el) el.textContent = t[key];
+      });
+      renderTimeline(lang);
+      document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+      document.querySelectorAll('.lang-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+    }
+
+    function setupLangToggle() {
+      document.querySelectorAll('.lang-btn').forEach((btn) => {
+        btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setupLangToggle();
+        applyLang(currentLang);
+      });
+    } else {
+      setupLangToggle();
+      applyLang(currentLang);
+    }
+  </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ intro/
 ### Pages
 - **[Intro Page](./index.html)** - Welcome page with features showcase
 - **[Privacy Policy](./privacy.html)** - Chrome Web Store compliant privacy policy
+- **[Release Logs](./release.html)** - Feature release timeline and change history
 
 ### Documentation
 - **[Full Guide](./README.md)** - Complete intro and privacy pages documentation
