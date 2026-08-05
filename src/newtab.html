@@ -664,6 +664,15 @@
               <input id="normalizeGroupToggle" type="checkbox" class="settings-switch" />
             </label>
 
+            <div class="settings-row" style="justify-content: space-between; gap: 8px;">
+              <span id="settingsBackupLabel" class="settings-label">備份 / 還原</span>
+              <span style="display:flex; gap:8px;">
+                <button class="btn" type="button" id="exportSettingsBtn">匯出設定</button>
+                <button class="btn" type="button" id="importSettingsBtn">匯入設定</button>
+              </span>
+            </div>
+            <input type="file" id="importSettingsFile" accept=".json,application/json" style="display:none;" />
+
             <div class="settings-actions">
               <button class="btn" value="cancel" id="settingsCancelBtn">取消</button>
               <button class="btn" value="confirm" id="settingsSaveBtn">儲存</button>

@@ -404,7 +404,7 @@
       <p id="desc">從 commit <strong>c04c03308e960b</strong> 之後的功能更新，整理為可讀性更高的版本紀錄頁。</p>
       <div class="meta-row">
         <span class="meta-chip" id="metaRange">範圍：c04c03308e960b..HEAD</span>
-        <span class="meta-chip" id="metaUpdated">最後更新：2026-03-02</span>
+        <span class="meta-chip" id="metaUpdated">最後更新：2026-08-04</span>
         <span class="meta-chip" id="metaTotal">共 8 筆 commits</span>
       </div>
     </section>
@@ -422,7 +422,7 @@
         title: 'Release Logs',
         desc: '從 commit c04c03308e960b 之後的功能更新，整理為可讀性更高的版本紀錄頁。',
         metaRange: '範圍：c04c03308e960b..HEAD',
-        metaUpdated: '最後更新：2026-03-02',
+        metaUpdated: '最後更新：2026-08-04',
         metaTotal: '版本節點：{count}',
         statusLatest: '最新',
         statusStable: '已發布',
@@ -438,7 +438,7 @@
         title: 'Release Logs',
         desc: 'A readable release page for updates after commit c04c03308e960b.',
         metaRange: 'Range: c04c03308e960b..HEAD',
-        metaUpdated: 'Last Updated: 2026-03-02',
+        metaUpdated: 'Last Updated: 2026-08-04',
         metaTotal: 'Release points: {count}',
         statusLatest: 'latest',
         statusStable: 'released',
@@ -455,10 +455,30 @@
     const releases = {
       zh: [
         {
+          version: 'v1.2.0',
+          date: '2026-08-04',
+          range: 'v1.1.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: '設定匯出 / 匯入：可將分類規則、matcher 與釘選網址匯出成 JSON 備份檔，重裝後一鍵匯入還原（完全取代，覆寫前確認）', commit: '' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: '安裝後直接接管 Chrome 預設新分頁：開新分頁即載入 NeonFlux 完整儀表板，無安裝提示、無關閉選項（重新啟用 chrome_url_overrides）', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.1.0',
           date: '2026-03-02',
           range: 'c04c03308e960b..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',
@@ -507,10 +527,30 @@
       ],
       en: [
         {
+          version: 'v1.2.0',
+          date: '2026-08-04',
+          range: 'v1.1.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: 'Settings export / import: back up category rules, matchers, and pinned URLs to a JSON file and restore them in one click after reinstalling (full replace, with confirmation before overwrite)', commit: '' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: 'NeonFlux now takes over the Chrome default new tab on install: every new tab loads the full dashboard, with no install prompt and no opt-out (chrome_url_overrides re-enabled)', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.1.0',
           date: '2026-03-02',
           range: 'c04c03308e960b..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',

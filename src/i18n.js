@@ -23,6 +23,8 @@ const i18n = {
     btnDeleteCategory: '刪除',
     btnMoveUp: '上移',
     btnMoveDown: '下移',
+    btnExportSettings: '匯出設定',
+    btnImportSettings: '匯入設定',
     
     // Settings
     settingsTitle: '設定',
@@ -36,6 +38,7 @@ const i18n = {
     settingsColCount: '每列分類數（欄位數）',
     settingsNormalizeGroup: '合併相同路徑（忽略參數）',
     settingsCategoryManagement: '分類管理（進階）',
+    settingsBackup: '備份 / 還原',
     
     // Column count options
     colCount1: '1 欄',
@@ -71,7 +74,12 @@ const i18n = {
     msgCategoryJsonArrayRequired: '必須是陣列',
     msgCategoryFieldRequired: '每個分類需包含 key 與 label',
     msgCurtainLocked: '門簾已暫時打開，但下次載入時將重新啟用',
-    
+    msgImportConfirm: '匯入將覆寫目前所有設定（分類規則、釘選與偏好），確定要繼續嗎？',
+    msgImportSuccess: '設定已匯入並還原',
+    msgImportError: '匯入失敗：',
+    msgImportInvalid: '檔案格式不符，不是有效的 NeonFlux 備份檔',
+    msgExportError: '匯出失敗：',
+
     // Language
     language: '語言',
     
@@ -106,6 +114,8 @@ const i18n = {
     btnDeleteCategory: 'Delete',
     btnMoveUp: 'Move Up',
     btnMoveDown: 'Move Down',
+    btnExportSettings: 'Export Settings',
+    btnImportSettings: 'Import Settings',
     
     // Settings
     settingsTitle: 'Settings',
@@ -119,6 +129,7 @@ const i18n = {
     settingsColCount: 'Columns per Row',
     settingsNormalizeGroup: 'Group by Path (ignore params)',
     settingsCategoryManagement: 'Category Management (Advanced)',
+    settingsBackup: 'Backup / Restore',
     
     // Column count options
     colCount1: '1 Column',
@@ -154,7 +165,12 @@ const i18n = {
     msgCategoryJsonArrayRequired: 'Must be an array',
     msgCategoryFieldRequired: 'Each category must have key and label',
     msgCurtainLocked: 'Curtain temporarily opened, but will be re-enabled on next load',
-    
+    msgImportConfirm: 'Importing will overwrite all current settings (category rules, pins, and preferences). Continue?',
+    msgImportSuccess: 'Settings imported and restored',
+    msgImportError: 'Import failed: ',
+    msgImportInvalid: 'Invalid file: not a valid NeonFlux backup',
+    msgExportError: 'Export failed: ',
+
     // Language
     language: 'Language',
     

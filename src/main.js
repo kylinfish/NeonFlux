@@ -195,6 +195,94 @@ function saveSettings(settings) {
     });
 }
 
+// 設定備份 / 還原
+const BACKUP_APP = 'NeonFlux';
+const BACKUP_TYPE = 'settings-backup';
+const BACKUP_VERSION = 1;
+
+// 匯出整個 settings 物件成 JSON 檔（含分類規則與釘選），純前端下載、免權限
+function exportSettings() {
+    try {
+        const payload = {
+            app: BACKUP_APP,
+            type: BACKUP_TYPE,
+            version: BACKUP_VERSION,
+            exportedAt: new Date().toISOString(),
+            settings: STATE.settings,
+        };
+        const json = JSON.stringify(payload, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `neonflux-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+        alert(t('msgExportError') + (err?.message || err));
+    }
+}
+
+// 驗證匯入內容是否為合法的 NeonFlux 備份
+function isValidBackup(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    if (obj.type && obj.type !== BACKUP_TYPE) return false;
+    const s = obj.settings;
+    if (!s || typeof s !== 'object') return false;
+    if (!Array.isArray(s.categories)) return false;
+    return true;
+}
+
+// 完全取代目前設定（還原備份），並即時套用到 UI
+async function applyImportedSettings(imported) {
+    // 用 DEFAULT_SETTINGS 補齊缺欄位（容錯 / 版本漂移），與 loadSettings 行為一致
+    const merged = deepMerge(DEFAULT_SETTINGS, imported);
+    if (!Array.isArray(merged.categories) || merged.categories.length === 0) {
+        merged.categories = defaultCategories();
+    }
+    STATE.settings = merged;
+    await saveSettings(merged);
+
+    // 重新填入設定欄位
+    $limitInput.value = merged.perCategoryLimit;
+    $daysInput.value = merged.recentDays;
+    if ($sortSelect) $sortSelect.value = merged.sortBy || 'latest';
+    if ($colCountSelect) $colCountSelect.value = String(merged.ui?.colCount || 3);
+    if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!merged.ui?.normalizeGroupEnabled;
+    if ($categoriesUI) renderCategoriesUI(merged.categories);
+    applyColumnCount(merged.ui?.colCount || 3);
+    await refreshAndRender();
+}
+
+// 讀取備份檔 → 解析 → 驗證 → 確認覆寫 → 套用
+function importSettingsFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = async () => {
+        let parsed;
+        try {
+            parsed = JSON.parse(String(reader.result));
+        } catch {
+            alert(t('msgImportInvalid'));
+            return;
+        }
+        if (!isValidBackup(parsed)) {
+            alert(t('msgImportInvalid'));
+            return;
+        }
+        if (!confirm(t('msgImportConfirm'))) return;
+        try {
+            await applyImportedSettings(parsed.settings);
+            alert(t('msgImportSuccess'));
+        } catch (err) {
+            alert(t('msgImportError') + (err?.message || err));
+        }
+    };
+    reader.onerror = () => alert(t('msgImportError') + (reader.error?.message || 'read error'));
+    reader.readAsText(file);
+}
+
 // URL 工具
 function getFavicon(url) {
     try { const u = new URL(url); return `${u.origin}/favicon.ico`; } catch { return ''; }
@@ -694,6 +782,15 @@ function updateUIText() {
     const saveCategoriesUIButton = document.getElementById('saveCategoriesUIButton');
     if (saveCategoriesUIButton) saveCategoriesUIButton.textContent = t('btnSaveCategories');
 
+    const settingsBackupLabel = document.getElementById('settingsBackupLabel');
+    if (settingsBackupLabel) settingsBackupLabel.textContent = t('settingsBackup');
+
+    const exportSettingsBtn = document.getElementById('exportSettingsBtn');
+    if (exportSettingsBtn) exportSettingsBtn.textContent = t('btnExportSettings');
+
+    const importSettingsBtn = document.getElementById('importSettingsBtn');
+    if (importSettingsBtn) importSettingsBtn.textContent = t('btnImportSettings');
+
     const focusCloseBtn = document.getElementById('focusCloseBtn');
     if (focusCloseBtn) focusCloseBtn.textContent = t('btnBack');
 
@@ -816,6 +913,18 @@ async function init() {
         } catch (err) {
             alert('分類設定有誤：' + (err?.message || err));
         }
+    });
+
+    // 設定備份 / 還原事件
+    const $exportSettingsBtn = document.getElementById('exportSettingsBtn');
+    const $importSettingsBtn = document.getElementById('importSettingsBtn');
+    const $importSettingsFile = document.getElementById('importSettingsFile');
+    $exportSettingsBtn?.addEventListener('click', () => exportSettings());
+    $importSettingsBtn?.addEventListener('click', () => $importSettingsFile?.click());
+    $importSettingsFile?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file) importSettingsFromFile(file);
+        e.target.value = ''; // 允許重複選擇同一檔案
     });
 
     $categoriesUI?.addEventListener('click', (e) => {
