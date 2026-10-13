@@ -11,6 +11,7 @@
     <link rel="icon" type="image/png" href="icon_white.png">
     <link rel="icon" type="image/png" href="icon_white.png" media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" href="icon_white.png">
+    <script src="./theme.js"></script>
     <script src="./i18n.js" defer></script>
     <script src="./icons.js" defer></script>
     <style>
@@ -22,11 +23,20 @@
         --text: #e9eef6;
         --muted: #b6c2d0;
         --accent: #7cc3ff;
+        --accent-rgb: 124, 195, 255;
+        --subtle: #9db0c3;
+        --bg-glow-1: #142032;
+        --bg-glow-2: #1a2440;
+        --bg-glow-3: #0e1626;
+        --blob-1: 124, 195, 255;
+        --blob-2: 173, 124, 255;
+        --blob-3: 255, 180, 124;
+        --blob-opacity: 0.8;
         --settings-bg: rgba(14, 20, 30, 0.9);
         --settings-panel: rgba(22, 30, 44, 0.88);
         --settings-border: rgba(170, 196, 235, 0.22);
-        --settings-highlight: rgba(124, 195, 255, 0.18);
-        --settings-glow: rgba(124, 195, 255, 0.45);
+        --settings-highlight: rgba(var(--accent-rgb),0.18);
+        --settings-glow: rgba(var(--accent-rgb),0.45);
         --aws: 210, 94%, 62%;
         --gitlab: 16, 93%, 61%;
         --figma: 280, 79%, 66%;
@@ -39,15 +49,49 @@
         --blur: 18px;
         --row-h: 54px; /* 單列高度估值，供 fix-height 使用 */
       }
+
+      /* 主題配色：只覆寫 token（預設 neon 定義在 :root）；色盤見 docs/superpowers/specs/2026-10-13-themes-design.md */
+      :root[data-theme="aurora"] {
+        --bg: #06110f; --bg-glow-1: #0b2a24; --bg-glow-2: #0d1f33; --bg-glow-3: #071a17;
+        --blob-1: 94, 242, 176; --blob-2: 79, 209, 255; --blob-3: 155, 123, 255; --blob-opacity: 0.8;
+        --accent: #5ef2b0; --accent-rgb: 94, 242, 176;
+        --text: #e6f6f0; --muted: #a8c4bb; --subtle: #8fb0a6;
+        --stroke: rgba(200,255,235,0.12); --glass: rgba(200,255,235,0.07);
+        --settings-bg: rgba(8, 22, 20, 0.9); --settings-panel: rgba(14, 32, 30, 0.88); --settings-border: rgba(160, 235, 210, 0.22);
+      }
+      :root[data-theme="sakura"] {
+        --bg: #120a12; --bg-glow-1: #2a1226; --bg-glow-2: #1e1530; --bg-glow-3: #1a0e18;
+        --blob-1: 255, 126, 182; --blob-2: 195, 155, 255; --blob-3: 255, 180, 162; --blob-opacity: 0.8;
+        --accent: #ff8cc6; --accent-rgb: 255, 140, 198;
+        --text: #f6eaf1; --muted: #cdb3c2; --subtle: #b398a8;
+        --stroke: rgba(255,215,235,0.12); --glass: rgba(255,215,235,0.07);
+        --settings-bg: rgba(24, 12, 22, 0.9); --settings-panel: rgba(36, 20, 34, 0.88); --settings-border: rgba(240, 180, 215, 0.22);
+      }
+      :root[data-theme="graphite"] {
+        --bg: #0c0c0e; --bg-glow-1: #18181c; --bg-glow-2: #141418; --bg-glow-3: #101012;
+        --blob-1: 170, 170, 180; --blob-2: 120, 120, 130; --blob-3: 200, 200, 205; --blob-opacity: 0.35;
+        --accent: #d4d4d8; --accent-rgb: 212, 212, 216;
+        --text: #ededef; --muted: #a1a1aa; --subtle: #8a8a93;
+        --stroke: rgba(255,255,255,0.10); --glass: rgba(255,255,255,0.06);
+        --settings-bg: rgba(16, 16, 18, 0.92); --settings-panel: rgba(26, 26, 30, 0.9); --settings-border: rgba(220, 220, 225, 0.18);
+      }
+      :root[data-theme="matcha"] {
+        --bg: #0b0f0a; --bg-glow-1: #18241a; --bg-glow-2: #22231a; --bg-glow-3: #121a12;
+        --blob-1: 150, 200, 110; --blob-2: 220, 205, 150; --blob-3: 110, 170, 140; --blob-opacity: 0.6;
+        --accent: #a8d48a; --accent-rgb: 168, 212, 138;
+        --text: #eef2e8; --muted: #b4bda8; --subtle: #9aa48e;
+        --stroke: rgba(230,245,215,0.11); --glass: rgba(230,245,215,0.06);
+        --settings-bg: rgba(14, 20, 14, 0.9); --settings-panel: rgba(24, 32, 24, 0.88); --settings-border: rgba(200, 225, 175, 0.2);
+      }
       * { box-sizing: border-box; }
       html, body {
         height: 100%;
         margin: 0;
         font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         color: var(--text);
-        background: radial-gradient(1200px 800px at 10% -10%, #142032 0%, transparent 60%),
-                    radial-gradient(1000px 700px at 110% 20%, #1a2440 0%, transparent 60%),
-                    radial-gradient(800px 600px at 50% 120%, #0e1626 0%, transparent 60%),
+        background: radial-gradient(1200px 800px at 10% -10%, var(--bg-glow-1) 0%, transparent 60%),
+                    radial-gradient(1000px 700px at 110% 20%, var(--bg-glow-2) 0%, transparent 60%),
+                    radial-gradient(800px 600px at 50% 120%, var(--bg-glow-3) 0%, transparent 60%),
                     var(--bg);
         overflow: hidden;
       }
@@ -56,16 +100,16 @@
       .bg-blobs {
         position: fixed; inset: 0; pointer-events: none; overflow: hidden;
         filter: blur(40px) saturate(120%);
-        opacity: 0.8;
+        opacity: var(--blob-opacity);
       }
       .blob {
         position: absolute; width: 40vmax; height: 40vmax; border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, rgba(124,195,255,0.35), rgba(124,195,255,0.05) 60%, transparent 70%);
+        background: radial-gradient(circle at 30% 30%, rgba(var(--blob-1),0.35), rgba(var(--blob-1),0.05) 60%, transparent 70%);
         animation: float 28s ease-in-out infinite;
         mix-blend-mode: screen;
       }
-      .blob.b2 { background: radial-gradient(circle at 60% 40%, rgba(173,124,255,0.30), rgba(173,124,255,0.05) 60%, transparent 70%); animation-duration: 36s; }
-      .blob.b3 { background: radial-gradient(circle at 50% 50%, rgba(255,180,124,0.25), rgba(255,180,124,0.05) 60%, transparent 70%); animation-duration: 42s; }
+      .blob.b2 { background: radial-gradient(circle at 60% 40%, rgba(var(--blob-2),0.30), rgba(var(--blob-2),0.05) 60%, transparent 70%); animation-duration: 36s; }
+      .blob.b3 { background: radial-gradient(circle at 50% 50%, rgba(var(--blob-3),0.25), rgba(var(--blob-3),0.05) 60%, transparent 70%); animation-duration: 42s; }
       @keyframes float {
         0% { transform: translate(-10%, -10%) scale(1); }
         25% { transform: translate(10%, -5%) scale(1.08); }
@@ -88,7 +132,7 @@
       
       .logo {
         width: 48px; height: 48px; border-radius: 12px;
-        background: linear-gradient(135deg, rgba(124,195,255,0.4), rgba(255,255,255,0.06));
+        background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(255,255,255,0.06));
         box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 16px rgba(0,0,0,0.25);
         backdrop-filter: blur(var(--blur));
       }
@@ -112,10 +156,10 @@
         backdrop-filter: blur(var(--blur));
         transition: border-color 0.2s ease, background 0.2s ease;
       }
-      .search input::placeholder { color: #9db0c3; }
+      .search input::placeholder { color: var(--subtle); }
       .search .kbd {
         position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-        font-size: 11px; color: #9db0c3; background: rgba(255,255,255,0.06);
+        font-size: 11px; color: var(--subtle); background: rgba(255,255,255,0.06);
         border: 1px solid var(--stroke);
         padding: 2px 6px; border-radius: 6px;
       }
@@ -280,7 +324,7 @@
         z-index: 2;
       }
       .curtain:hover { background: linear-gradient(180deg, rgba(10,14,20,0.68), rgba(10,14,20,0.52)), repeating-linear-gradient(45deg, rgba(255,255,255,0.12) 0 8px, rgba(0,0,0,0.12) 8px 16px); }
-      .curtain-hint { color: #c9d6e2; font-size: 12px; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid var(--stroke); }
+      .curtain-hint { color: var(--muted); font-size: 12px; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid var(--stroke); }
       .item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px 10px; border-radius: 12px; border: 1px solid transparent; background: rgba(255,255,255,0.04); transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease; }
       .item:hover { background: rgba(255,255,255,0.08); border-color: var(--stroke); }
       .meta { display: flex; gap: 8px; align-items: center; min-width: 0; }
@@ -290,8 +334,8 @@
       .urlline { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top:5px; }
       .actions { display: flex; gap: 6px; align-items: center; }
       .chip { font-size: 11px; color: var(--muted); padding: 3px 6px; border: 1px solid var(--stroke); border-radius: 8px; background: rgba(0,0,0,0.1); }
-      .pin { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.05); cursor: pointer; color: #a8b6c7; }
-      .pin.active { color: var(--accent); border-color: rgba(124,195,255,0.7); background: rgba(124,195,255,0.08); border: 1.5px solid; }
+      .pin { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.05); cursor: pointer; color: var(--muted); }
+      .pin.active { color: var(--accent); border-color: rgba(var(--accent-rgb),0.7); background: rgba(var(--accent-rgb),0.08); border: 1.5px solid; }
 
       .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0 28px; }
       .footer a { color: var(--accent); text-decoration: none; margin-left: 6px; }
@@ -328,8 +372,8 @@
         max-height: 80vh;
         border-radius: 20px;
         padding: 18px;
-        background: radial-gradient(140% 120% at 10% 0%, rgba(124,195,255,0.18), transparent 55%),
-                    radial-gradient(120% 120% at 100% 10%, rgba(255,196,124,0.16), transparent 55%),
+        background: radial-gradient(140% 120% at 10% 0%, rgba(var(--accent-rgb),0.18), transparent 55%),
+                    radial-gradient(120% 120% at 100% 10%, rgba(var(--blob-3),0.16), transparent 55%),
                     var(--settings-panel);
         border: 1px solid var(--settings-border);
         box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset;
@@ -345,7 +389,7 @@
         position: absolute;
         inset: 0;
         border-radius: 20px;
-        background: linear-gradient(145deg, rgba(255,255,255,0.08), transparent 40%, rgba(124,195,255,0.12));
+        background: linear-gradient(145deg, rgba(255,255,255,0.08), transparent 40%, rgba(var(--accent-rgb),0.12));
         pointer-events: none;
         mix-blend-mode: screen;
       }
@@ -422,7 +466,7 @@
       .settings-input:focus,
       .settings-select:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(124,195,255,0.18);
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.18);
       }
 
       .settings-switch {
@@ -451,9 +495,9 @@
       }
 
       .settings-switch:checked {
-        background: linear-gradient(120deg, rgba(124,195,255,0.9), rgba(124,195,255,0.5));
-        border-color: rgba(124,195,255,0.8);
-        box-shadow: 0 0 0 3px rgba(124,195,255,0.15);
+        background: linear-gradient(120deg, rgba(var(--accent-rgb),0.9), rgba(var(--accent-rgb),0.5));
+        border-color: rgba(var(--accent-rgb),0.8);
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.15);
       }
 
       .settings-switch:checked::after {
@@ -501,6 +545,20 @@
       }
       .settings-body > .settings-section:first-child { overflow: auto; }
 
+      /* 主題色塊：每顆是該主題的縮圖（底色 + 兩顆光球），選中時外圈為該主題的強調色 */
+      .theme-row { grid-template-columns: auto 1fr; }
+      .theme-swatches { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 4px 2px; }
+      .theme-swatch { display: grid; justify-items: center; gap: 6px; background: none; border: 0; padding: 0; color: var(--muted); font-size: 11px; cursor: pointer; }
+      .theme-swatch i {
+        display: block; width: 32px; height: 32px; border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.28); background-clip: padding-box;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35);
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+      }
+      .theme-swatch:hover i { transform: scale(1.06); }
+      .theme-swatch.active { color: var(--text); }
+      .theme-swatch.active i { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35), 0 0 0 2px var(--settings-panel), 0 0 0 4px var(--sw-accent); }
+
       /* 分類管理工具列：標題 / 篩選 / 動作 */
       .cat-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
       .cat-toolbar .settings-section-title { margin: 0 auto 0 0; }
@@ -547,9 +605,9 @@
         padding: 12px;
         border-radius: 14px;
         background:
-          linear-gradient(140deg, rgba(124,195,255,0.08), rgba(255,255,255,0.03) 55%, rgba(255,196,124,0.06)),
+          linear-gradient(140deg, rgba(var(--accent-rgb),0.08), rgba(255,255,255,0.03) 55%, rgba(var(--blob-3),0.06)),
           rgba(8,12,18,0.35);
-        border: 1px solid rgba(124,195,255,0.18);
+        border: 1px solid rgba(var(--accent-rgb),0.18);
         box-shadow: 0 10px 26px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03);
         backdrop-filter: blur(10px);
         display: grid;
@@ -559,13 +617,13 @@
 
       .settings-categories .cat:hover {
         transform: translateY(-1px);
-        border-color: rgba(124,195,255,0.35);
-        box-shadow: 0 16px 34px rgba(0,0,0,0.35), 0 0 24px rgba(124,195,255,0.12);
+        border-color: rgba(var(--accent-rgb),0.35);
+        box-shadow: 0 16px 34px rgba(0,0,0,0.35), 0 0 24px rgba(var(--accent-rgb),0.12);
       }
 
       .settings-categories .cat:focus-within {
-        border-color: rgba(124,195,255,0.6);
-        box-shadow: inset 0 0 0 2px rgba(124,195,255,0.4), 0 18px 38px rgba(0,0,0,0.4);
+        border-color: rgba(var(--accent-rgb),0.6);
+        box-shadow: inset 0 0 0 2px rgba(var(--accent-rgb),0.4), 0 18px 38px rgba(0,0,0,0.4);
       }
 
       .settings-categories .cat[data-enabled="0"] .cat-name,
@@ -589,16 +647,16 @@
 
       .settings-categories .cat:nth-child(odd) {
         background:
-          linear-gradient(140deg, rgba(124,195,255,0.12), rgba(255,255,255,0.03) 55%, rgba(124,195,255,0.04)),
+          linear-gradient(140deg, rgba(var(--accent-rgb),0.12), rgba(255,255,255,0.03) 55%, rgba(var(--accent-rgb),0.04)),
           rgba(8,12,18,0.35);
-        border-color: rgba(124,195,255,0.22);
+        border-color: rgba(var(--accent-rgb),0.22);
       }
 
       .settings-categories .cat:nth-child(even) {
         background:
-          linear-gradient(140deg, rgba(255,196,124,0.12), rgba(255,255,255,0.03) 55%, rgba(124,195,255,0.04)),
+          linear-gradient(140deg, rgba(var(--blob-3),0.12), rgba(255,255,255,0.03) 55%, rgba(var(--accent-rgb),0.04)),
           rgba(8,12,18,0.35);
-        border-color: rgba(255,196,124,0.22);
+        border-color: rgba(var(--blob-3),0.22);
       }
 
       .settings-categories .cat-header {
@@ -619,8 +677,8 @@
       }
 
       .settings-categories .cat-actions .btn {
-        background: rgba(124,195,255,0.14);
-        border-color: rgba(124,195,255,0.3);
+        background: rgba(var(--accent-rgb),0.14);
+        border-color: rgba(var(--accent-rgb),0.3);
         border-radius: 999px;
       }
 
@@ -660,8 +718,8 @@
       }
 
       .settings-categories .matcher-actions .btn {
-        background: rgba(124,195,255,0.12);
-        border-color: rgba(124,195,255,0.28);
+        background: rgba(var(--accent-rgb),0.12);
+        border-color: rgba(var(--accent-rgb),0.28);
       }
 
       .settings-categories .cat input[type="text"],
@@ -745,6 +803,10 @@
         <div class="settings-body">
           <div class="settings-section">
             <div id="settingsGeneralLegend" class="settings-section-title">一般</div>
+            <div class="settings-row theme-row">
+              <span id="settingsThemeLabel" class="settings-label">主題</span>
+              <div class="theme-swatches" id="themeSwatches" role="radiogroup"></div>
+            </div>
             <label class="settings-row">
               <span id="settingsCategoryLimitLabel" class="settings-label">分類顯示數量（上限）</span>
               <input id="limitInput" type="number" min="1" max="100" step="1" class="settings-input" />

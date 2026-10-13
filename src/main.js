@@ -129,6 +129,7 @@ const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
 const $layoutWidthGroup = document.getElementById('layoutWidthGroup');
 const $layoutModeGroup = document.getElementById('layoutModeGroup');
+const $themeSwatches = document.getElementById('themeSwatches');
 const $colCountRow = document.getElementById('colCountRow');
 const $colCountSelect = document.getElementById('colCountSelect');
 const $layoutResetBtn = document.getElementById('layoutResetBtn');
@@ -259,6 +260,7 @@ async function applyImportedSettings(imported) {
     }
     STATE.settings = merged;
     await saveSettings(merged);
+    applyTheme(merged.ui?.theme);
 
     // 重新填入設定欄位
     $limitInput.value = merged.perCategoryLimit;
@@ -366,6 +368,18 @@ function setLayoutModeField(mode) {
     $layoutModeGroup.dataset.value = mode;
     $layoutModeGroup.querySelectorAll('button[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
     if ($colCountRow) $colCountRow.hidden = mode !== 'grid';
+}
+
+// 主題色塊（縮圖：底色 + 兩顆光球）：點擊即預覽（只改 data-theme），按「儲存」才寫入，「取消」還原
+function renderThemeSwatches(active) {
+    if (!$themeSwatches) return;
+    $themeSwatches.dataset.value = active;
+    $themeSwatches.innerHTML = Object.entries(THEMES).map(([key, c]) => {
+        const name = t('theme' + key[0].toUpperCase() + key.slice(1));
+        return `<button type="button" class="theme-swatch${key === active ? ' active' : ''}" data-theme-key="${key}" role="radio" aria-checked="${key === active}" title="${name}">
+          <i style="--sw-accent: ${c.accent}; background: radial-gradient(circle at 30% 28%, ${c.blobs[0]} 0 18%, transparent 62%), radial-gradient(circle at 74% 74%, ${c.blobs[1]} 0 14%, transparent 60%), ${c.bg}"></i><span>${name}</span>
+        </button>`;
+    }).join('');
 }
 
 function setCategoryFilter(filter) {
@@ -1005,6 +1019,9 @@ function updateUIText() {
     const settingsNormalizeGroupLabel = document.getElementById('settingsNormalizeGroupLabel');
     if (settingsNormalizeGroupLabel) settingsNormalizeGroupLabel.textContent = t('settingsNormalizeGroup');
 
+    const settingsThemeLabel = document.getElementById('settingsThemeLabel');
+    if (settingsThemeLabel) settingsThemeLabel.textContent = t('settingsTheme');
+
     // 排版模式 / 欄位數
     for (const [id, key] of [['settingsLayoutModeLabel', 'settingsLayoutMode'], ['layoutModeGrid', 'layoutModeGrid'],
         ['layoutModeFree', 'layoutModeFree'], ['settingsColCountLabel', 'settingsColCount'],
@@ -1079,6 +1096,7 @@ async function init() {
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
     applyLayoutMode();
+    applyTheme(STATE.settings.ui.theme); // 以 storage 為準，同步回 localStorage
     updateCurtainBtnLabel();
     
     await refreshAndRender();
@@ -1103,6 +1121,7 @@ async function init() {
         // 每次開啟都以已儲存的分類為準（上次按取消的修改不殘留）
         if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
         setLayoutModeField(resolveLayoutMode(STATE.settings.ui));
+        renderThemeSwatches(resolveTheme(STATE.settings.ui.theme));
         if ($colCountSelect) $colCountSelect.value = String(Math.min(4, STATE.settings.ui.colCount || 3));
         $settingsDialog.showModal();
     });
@@ -1186,6 +1205,12 @@ async function init() {
     });
     $resetCategoriesUIButton?.addEventListener('click', () => {
         renderCategoriesUI(defaultCategories());
+    });
+    $themeSwatches?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.theme-swatch');
+        if (!btn) return;
+        renderThemeSwatches(btn.dataset.themeKey);
+        document.documentElement.dataset.theme = btn.dataset.themeKey; // 預覽
     });
     $layoutModeGroup?.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-mode]');
@@ -1281,6 +1306,7 @@ async function init() {
             const layoutMode = $layoutModeGroup?.dataset.value || resolveLayoutMode(STATE.settings.ui);
             if (layoutMode !== resolveLayoutMode(STATE.settings.ui)) await exitLayoutEdit(false);
             STATE.settings.ui.layoutMode = layoutMode;
+            STATE.settings.ui.theme = applyTheme($themeSwatches?.dataset.value || STATE.settings.ui.theme);
             if ($colCountSelect) STATE.settings.ui.colCount = Math.max(1, Math.min(4, parseInt($colCountSelect.value || 3, 10)));
             applyLayoutMode();
 
@@ -1292,6 +1318,8 @@ async function init() {
             }
             await saveSettings(STATE.settings);
             await refreshAndRender();
+        } else {
+            applyTheme(STATE.settings.ui.theme); // 取消：還原主題預覽
         }
     });
 
