@@ -404,7 +404,7 @@
       <p id="desc">從 commit <strong>c04c03308e960b</strong> 之後的功能更新，整理為可讀性更高的版本紀錄頁。</p>
       <div class="meta-row">
         <span class="meta-chip" id="metaRange">範圍：c04c03308e960b..HEAD</span>
-        <span class="meta-chip" id="metaUpdated">最後更新：2026-08-04</span>
+        <span class="meta-chip" id="metaUpdated">最後更新：2026-10-13</span>
         <span class="meta-chip" id="metaTotal">共 8 筆 commits</span>
       </div>
     </section>
@@ -422,7 +422,7 @@
         title: 'Release Logs',
         desc: '從 commit c04c03308e960b 之後的功能更新，整理為可讀性更高的版本紀錄頁。',
         metaRange: '範圍：c04c03308e960b..HEAD',
-        metaUpdated: '最後更新：2026-08-04',
+        metaUpdated: '最後更新：2026-10-13',
         metaTotal: '版本節點：{count}',
         statusLatest: '最新',
         statusStable: '已發布',
@@ -438,7 +438,7 @@
         title: 'Release Logs',
         desc: 'A readable release page for updates after commit c04c03308e960b.',
         metaRange: 'Range: c04c03308e960b..HEAD',
-        metaUpdated: 'Last Updated: 2026-08-04',
+        metaUpdated: 'Last Updated: 2026-10-13',
         metaTotal: 'Release points: {count}',
         statusLatest: 'latest',
         statusStable: 'released',
@@ -455,10 +455,33 @@
     const releases = {
       zh: [
         {
+          version: 'v1.3.0',
+          date: '2026-10-13',
+          range: 'v1.2.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: '排版模式：設定 › 一般可選「經典欄位」或「自由排版」', commit: '' },
+                { text: '自由排版：拖曳卡片到任一軌、新增 / 刪除軌道；大分類獨佔一軌、小分類疊在同一軌；軌道超出畫面時橫向捲動並顯示左右箭頭', commit: '' },
+                { text: '5 組深色主題：霓虹流、極光、夜櫻、石墨、抹茶（設定 › 主題，點擊即預覽）', commit: '' },
+                { text: '更新後在新分頁顯示一次「新功能」卡片；Header logo 連結至官網', commit: '' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: '分類管理改為可篩選的手風琴清單，底部固定單一「儲存 / 取消」；上 / 下按鈕改稱「比對優先順序」', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.2.0',
           date: '2026-08-04',
           range: 'v1.1.0..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',
@@ -527,10 +550,33 @@
       ],
       en: [
         {
+          version: 'v1.3.0',
+          date: '2026-10-13',
+          range: 'v1.2.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'added',
+              items: [
+                { text: 'Layout mode: choose Classic columns or Free layout in Settings › General', commit: '' },
+                { text: 'Free layout: drag cards into any track, add / remove tracks; give a busy category a whole track and stack small ones; tracks scroll horizontally with prev / next arrows', commit: '' },
+                { text: '5 dark themes: Neon Flux, Aurora, Sakura Night, Graphite, Matcha (Settings › Theme, live preview)', commit: '' },
+                { text: "One-time \"What's new\" card after updating; header logo links to the website", commit: '' }
+              ]
+            },
+            {
+              type: 'changed',
+              items: [
+                { text: 'Category management is now a filterable accordion with one sticky Save / Cancel; up / down buttons are labelled as match priority', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.2.0',
           date: '2026-08-04',
           range: 'v1.1.0..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',
