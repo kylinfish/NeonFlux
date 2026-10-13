@@ -455,10 +455,32 @@
     const releases = {
       zh: [
         {
+          version: 'v1.3.1',
+          date: '2026-10-13',
+          range: 'v1.3.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'changed',
+              items: [
+                { text: '新分頁頁尾移到設定面板底部，騰出更多空間；設定中加入隱藏 Chrome 新分頁頁尾的提示', commit: '' },
+                { text: '卡片標題區更緊湊；各主題背景色調更明顯', commit: '' },
+                { text: '自由排版選「窄 / 很窄」時隱藏時間戳記，標題顯示更完整', commit: '' }
+              ]
+            },
+            {
+              type: 'fixed',
+              items: [
+                { text: '移除設定對話框外圍的白框', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.3.0',
           date: '2026-10-13',
           range: 'v1.2.0..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',
@@ -550,10 +572,32 @@
       ],
       en: [
         {
+          version: 'v1.3.1',
+          date: '2026-10-13',
+          range: 'v1.3.0..HEAD',
+          status: 'latest',
+          sections: [
+            {
+              type: 'changed',
+              items: [
+                { text: 'The new-tab footer moved into the settings panel for more room; added a tip on hiding Chrome\'s own new-tab footer', commit: '' },
+                { text: 'Tighter card headers; theme background tints are more visible', commit: '' },
+                { text: 'Free layout hides timestamps at Narrow / Narrower track widths so titles fit', commit: '' }
+              ]
+            },
+            {
+              type: 'fixed',
+              items: [
+                { text: 'Removed the white frame around the settings dialog', commit: '' }
+              ]
+            }
+          ]
+        },
+        {
           version: 'v1.3.0',
           date: '2026-10-13',
           range: 'v1.2.0..HEAD',
-          status: 'latest',
+          status: 'stable',
           sections: [
             {
               type: 'added',
