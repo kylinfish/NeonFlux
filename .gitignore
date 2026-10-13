@@ -447,3 +447,6 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/firebase,macos,visualstudio
 
 Explain
+
+# brainstorming visual companion
+.superpowers/
