@@ -985,6 +985,8 @@ function updateUIText() {
 
     // 更新按鈕 title
     $refreshBtn.title = t('btnSync');
+    const $homeLink = document.getElementById('homeLink');
+    if ($homeLink) $homeLink.title = t('homeLinkTitle');
     if ($gridPrevBtn) $gridPrevBtn.title = t('btnScrollPrev');
     if ($gridNextBtn) $gridNextBtn.title = t('btnScrollNext');
     $settingsBtn.title = t('btnSettings');

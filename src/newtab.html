@@ -129,6 +129,8 @@
       }
 
       .title { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+      a.logo { display: block; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+      a.logo:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 16px rgba(0,0,0,0.25), 0 0 0 2px rgba(var(--accent-rgb),0.5); }
       
       .logo {
         width: 48px; height: 48px; border-radius: 12px;
@@ -768,7 +770,7 @@
 
     <header>
       <div class="title">
-        <div class="logo"><img src="icon_white.png" alt="NeonFlux logo"></div>
+        <a class="logo" id="homeLink" href="https://neonflux-web.web.app/" target="_blank" rel="noreferrer" title="前往 NeonFlux 官網"><img src="icon_white.png" alt="NeonFlux logo"></a>
         <div>
           <h1>NeonFlux <span class="sub" style="margin-left:3px">霓虹流</span></h1> 
           <div class="sub">自定義歷史紀錄分類</div>
