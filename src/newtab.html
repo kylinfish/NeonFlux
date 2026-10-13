@@ -25,9 +25,9 @@
         --accent: #7cc3ff;
         --accent-rgb: 124, 195, 255;
         --subtle: #9db0c3;
-        --bg-glow-1: #142032;
-        --bg-glow-2: #1a2440;
-        --bg-glow-3: #0e1626;
+        --bg-glow-1: #1e3352;
+        --bg-glow-2: #273869;
+        --bg-glow-3: #14233f;
         --blob-1: 124, 195, 255;
         --blob-2: 173, 124, 255;
         --blob-3: 255, 180, 124;
@@ -52,7 +52,7 @@
 
       /* 主題配色：只覆寫 token（預設 neon 定義在 :root）；色盤見 docs/superpowers/specs/2026-10-13-themes-design.md */
       :root[data-theme="aurora"] {
-        --bg: #06110f; --bg-glow-1: #0b2a24; --bg-glow-2: #0d1f33; --bg-glow-3: #071a17;
+        --bg: #06110f; --bg-glow-1: #0f463b; --bg-glow-2: #123155; --bg-glow-3: #0a2b26;
         --blob-1: 94, 242, 176; --blob-2: 79, 209, 255; --blob-3: 155, 123, 255; --blob-opacity: 0.8;
         --accent: #5ef2b0; --accent-rgb: 94, 242, 176;
         --text: #e6f6f0; --muted: #a8c4bb; --subtle: #8fb0a6;
@@ -60,7 +60,7 @@
         --settings-bg: rgba(8, 22, 20, 0.9); --settings-panel: rgba(14, 32, 30, 0.88); --settings-border: rgba(160, 235, 210, 0.22);
       }
       :root[data-theme="sakura"] {
-        --bg: #120a12; --bg-glow-1: #2a1226; --bg-glow-2: #1e1530; --bg-glow-3: #1a0e18;
+        --bg: #120a12; --bg-glow-1: #451b3e; --bg-glow-2: #2f1f4f; --bg-glow-3: #2b1527;
         --blob-1: 255, 126, 182; --blob-2: 195, 155, 255; --blob-3: 255, 180, 162; --blob-opacity: 0.8;
         --accent: #ff8cc6; --accent-rgb: 255, 140, 198;
         --text: #f6eaf1; --muted: #cdb3c2; --subtle: #b398a8;
@@ -68,7 +68,7 @@
         --settings-bg: rgba(24, 12, 22, 0.9); --settings-panel: rgba(36, 20, 34, 0.88); --settings-border: rgba(240, 180, 215, 0.22);
       }
       :root[data-theme="graphite"] {
-        --bg: #0c0c0e; --bg-glow-1: #18181c; --bg-glow-2: #141418; --bg-glow-3: #101012;
+        --bg: #0c0c0e; --bg-glow-1: #26262d; --bg-glow-2: #202027; --bg-glow-3: #19191d;
         --blob-1: 170, 170, 180; --blob-2: 120, 120, 130; --blob-3: 200, 200, 205; --blob-opacity: 0.35;
         --accent: #d4d4d8; --accent-rgb: 212, 212, 216;
         --text: #ededef; --muted: #a1a1aa; --subtle: #8a8a93;
@@ -76,7 +76,7 @@
         --settings-bg: rgba(16, 16, 18, 0.92); --settings-panel: rgba(26, 26, 30, 0.9); --settings-border: rgba(220, 220, 225, 0.18);
       }
       :root[data-theme="matcha"] {
-        --bg: #0b0f0a; --bg-glow-1: #18241a; --bg-glow-2: #22231a; --bg-glow-3: #121a12;
+        --bg: #0b0f0a; --bg-glow-1: #253b29; --bg-glow-2: #373929; --bg-glow-3: #1c2a1c;
         --blob-1: 150, 200, 110; --blob-2: 220, 205, 150; --blob-3: 110, 170, 140; --blob-opacity: 0.6;
         --accent: #a8d48a; --accent-rgb: 168, 212, 138;
         --text: #eef2e8; --muted: #b4bda8; --subtle: #9aa48e;
@@ -183,7 +183,7 @@
       .cat-delete, .remove-matcher { border-color:#bd6b6b ;}
 
       main {
-        position: absolute; inset: 90px 0 0 0; overflow: auto; padding: 8px 22px 0;
+        position: absolute; inset: 90px 0 0 0; overflow: auto; padding: 8px 22px 20px;
         display: flex; flex-direction: column;
       }
 
@@ -239,6 +239,9 @@
       .layout-editing .card .list-container { pointer-events: none; opacity: 0.6; }
       .layout-editing .card .focus-btn { display: none; }
       .card.dragging { opacity: 0.4; }
+      /* 自由排版選「窄 / 很窄」時軌道太窄，隱藏每筆的時間戳記讓標題有空間 */
+      body:not(.mode-grid) .grid[data-cols="4"] .chip,
+      body:not(.mode-grid) .grid[data-cols="5"] .chip { display: none; }
 
       /* 軌道超出一畫面：縮小軌寬讓下一軌露出 48px，並顯示左右箭頭 */
       .grid.has-overflow { --track-w: calc((100% - 48px - var(--col, 3) * 16px) / var(--col, 3)); }
@@ -297,7 +300,8 @@
         background: radial-gradient(200px 120px at 0% -10%, rgba(255,255,255,0.18), transparent 60%);
         pointer-events: none;
       }
-      .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+      .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+      .card-header .btn { padding: 6px 8px; }
       .card-title { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.2px; font-size: 18px; }
       .dot { width: 10px; height: 10px; border-radius: 50%; }
       .tag { color: var(--muted); font-size: 12px; }
@@ -305,7 +309,7 @@
       /* 新增 list-container 作為 list 的外層容器，用於放置門簾 */
       .list-container {
         position: relative;
-        margin-top: 10px;
+        margin-top: 6px;
       }
       
       .list { 
@@ -339,9 +343,12 @@
       .pin { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.05); cursor: pointer; color: var(--muted); }
       .pin.active { color: var(--accent); border-color: rgba(var(--accent-rgb),0.7); background: rgba(var(--accent-rgb),0.08); border: 1.5px solid; }
 
-      .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0 28px; }
-      .footer a { color: var(--accent); text-decoration: none; margin-left: 6px; }
-      .footer a:hover { text-decoration: underline; }
+      /* 原頁尾（標語 / 評分）移到設定面板底部，不佔新分頁高度 */
+      .settings-meta { margin-right: auto; align-self: center; color: var(--muted); font-size: 12px; }
+      .settings-meta a { color: var(--accent); text-decoration: none; margin-left: 8px; }
+      .settings-meta a::before { content: "★ "; }
+      .settings-meta a:hover { text-decoration: underline; }
+      .settings-hint { margin: 12px 6px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 
 
       /* Category color accents */
@@ -823,10 +830,6 @@
         <button class="grid-arrow left" id="gridPrevBtn" type="button" hidden></button>
         <button class="grid-arrow right" id="gridNextBtn" type="button" hidden></button>
       </div>
-      <div class="footer">
-        <span id="footerText">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</span>
-        <a id="rateLink" href="https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb" target="_blank" rel="noreferrer">給 5 星好評</a>
-      </div>
     </main>
 
     <!-- Settings modal -->
@@ -893,6 +896,7 @@
               </span>
             </div>
             <input type="file" id="importSettingsFile" accept=".json,application/json" style="display:none;" />
+            <p class="settings-hint" id="chromeFooterHint">提示：新分頁底部 Chrome 的「NeonFlux · 自訂 Chrome」列，可在上面按右鍵 →「隱藏新分頁上的頁尾」，騰出更多空間。</p>
           </div>
 
           <div class="settings-section settings-details">
@@ -914,6 +918,10 @@
         </div>
 
         <div class="settings-actions">
+          <div class="settings-meta">
+            <span id="footerText">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</span>
+            <a id="rateLink" href="https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb" target="_blank" rel="noreferrer">給 5 星好評</a>
+          </div>
           <button class="btn" value="cancel" id="settingsCancelBtn">取消</button>
           <button class="btn primary" value="confirm" id="settingsSaveBtn">儲存</button>
         </div>

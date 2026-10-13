@@ -98,6 +98,7 @@ const i18n = {
     // Footer
     footerText: '瀏覽記錄自動分類 · 本機儲存 · 隱私優先',
     footerRate: '給 5 星好評',
+    chromeFooterHint: '提示：新分頁底部 Chrome 的「NeonFlux · 自訂 Chrome」列，可在上面按右鍵 →「隱藏新分頁上的頁尾」，騰出更多空間。',
     
     // Messages
     msgCurtainHint: '點一下以顯示',
@@ -225,6 +226,7 @@ const i18n = {
     // Footer
     footerText: 'Auto-categorize browsing history · Local storage · Privacy first',
     footerRate: 'Rate us 5 stars',
+    chromeFooterHint: 'Tip: right-click the “NeonFlux · Customize Chrome” bar Chrome adds at the bottom of new tabs → “Hide footer on New Tab page” to free up space.',
     
     // Messages
     msgCurtainHint: 'Click to reveal',

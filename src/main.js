@@ -347,6 +347,7 @@ function applyColumnCount(n) {
     CURRENT_COLS = n;
     if ($grid) {
         $grid.style.setProperty('--col', String(n));
+        $grid.dataset.cols = String(n); // CSS 依軌道寬度調整（窄 / 很窄時隱藏時間戳記）
     }
 }
 
@@ -996,6 +997,8 @@ function updateUIText() {
     if (footerText) footerText.textContent = t('footerText');
     const rateLink = document.getElementById('rateLink');
     if (rateLink) rateLink.textContent = t('footerRate');
+    const chromeFooterHint = document.getElementById('chromeFooterHint');
+    if (chromeFooterHint) chromeFooterHint.textContent = t('chromeFooterHint');
 
     // 更新 settings dialog 文本
     const settingsTitle = document.getElementById('settingsTitle');
