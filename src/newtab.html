@@ -545,6 +545,22 @@
       }
       .settings-body > .settings-section:first-child { overflow: auto; }
 
+      /* 更新後的「新功能」卡片：只對既有使用者顯示一次 */
+      .whats-new {
+        flex: 0 0 auto; display: flex; align-items: center; gap: 16px; margin: 0 0 14px; padding: 12px 16px;
+        border-radius: 16px; border: 1px solid rgba(var(--accent-rgb),0.45);
+        background: linear-gradient(120deg, rgba(var(--accent-rgb),0.16), rgba(var(--blob-2),0.10)), var(--settings-panel);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      }
+      .whats-new[hidden] { display: none; }
+      .whats-new-body { min-width: 0; }
+      .whats-new-body strong { font-size: 14px; }
+      .whats-new-body ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .whats-new-actions { margin-left: auto; display: flex; gap: 8px; flex: 0 0 auto; }
+      .whats-new-actions .btn { padding: 7px 12px; font-size: 13px; text-decoration: none; }
+      .whats-new-actions .btn.primary { background: var(--settings-highlight); border-color: var(--accent); }
+      @media (max-width: 700px) { .whats-new { flex-direction: column; align-items: flex-start; } .whats-new-actions { margin-left: 0; } }
+
       /* 主題色塊：每顆是該主題的縮圖（底色 + 兩顆光球），選中時外圈為該主題的強調色 */
       .theme-row { grid-template-columns: auto 1fr; }
       .theme-swatches { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 4px 2px; }
@@ -772,6 +788,20 @@
     </header>
 
     <main>
+      <section class="whats-new" id="whatsNew" hidden>
+        <div class="whats-new-body">
+          <strong id="whatsNewTitle">新功能</strong>
+          <ul>
+            <li id="whatsNewLayout"></li>
+            <li id="whatsNewTheme"></li>
+          </ul>
+        </div>
+        <div class="whats-new-actions">
+          <button class="btn primary" type="button" id="whatsNewTry">試試看</button>
+          <a class="btn" id="whatsNewNotes" target="_blank" rel="noreferrer">看更新說明</a>
+          <button class="btn" type="button" id="whatsNewDismiss">知道了</button>
+        </div>
+      </section>
       <div class="layout-toolbar" id="layoutToolbar">
         <span class="layout-toolbar-label" id="layoutWidthLabel">軌道寬度</span>
         <div class="segmented" id="layoutWidthGroup" role="group">
@@ -905,6 +935,7 @@
 
 
     <script src="./layout.js" defer></script>
+    <script src="./version.js" defer></script>
     <script src="./main.js" defer></script>
   </body>
   </html>

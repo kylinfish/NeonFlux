@@ -178,6 +178,7 @@ function loadSettings() {
     return new Promise(resolve => {
         if (!chrome?.storage?.local) return resolve(DEFAULT_SETTINGS);
         chrome.storage.local.get(['settings'], res => {
+            STATE.hadStoredSettings = !!res.settings; // 判斷舊使用者 vs 全新安裝（新功能卡片用）
             let s = deepMerge(DEFAULT_SETTINGS, res.settings || {});
             // 若缺 categories 或為空，補上預設
             if (!Array.isArray(s.categories) || s.categories.length === 0) s.categories = defaultCategories();
@@ -1078,6 +1079,7 @@ function updateUIText() {
     // 更新 curtain button
     updateCurtainBtnLabel();
     updateLayoutBtn();
+    updateWhatsNewText();
 }
 
 async function init() {
@@ -1100,6 +1102,7 @@ async function init() {
     updateCurtainBtnLabel();
     
     await refreshAndRender();
+    initWhatsNew();
 
     // 搜尋輸入
     $search.addEventListener('input', () => {
@@ -1366,6 +1369,45 @@ async function init() {
     $focusDialog?.addEventListener('close', () => {
         // 關閉後不需特別動作
     });
+}
+
+// 「新功能」卡片：功能版更新後對既有使用者顯示一次，關閉後記錄 lastSeenVersion
+const LAST_SEEN_VERSION_KEY = 'lastSeenVersion';
+
+async function initWhatsNew() {
+    const $card = document.getElementById('whatsNew');
+    if (!$card || !chrome?.storage?.local || !chrome.runtime?.getManifest) return;
+    const current = chrome.runtime.getManifest().version;
+    const res = await new Promise(r => chrome.storage.local.get([LAST_SEEN_VERSION_KEY], r));
+    const lastSeen = res[LAST_SEEN_VERSION_KEY] || null;
+    const markSeen = () => chrome.storage.local.set({ [LAST_SEEN_VERSION_KEY]: current });
+
+    if (!shouldShowWhatsNew(lastSeen, current, STATE.hadStoredSettings)) {
+        if (lastSeen !== current) markSeen();
+        return;
+    }
+    $card.dataset.version = current;
+    updateWhatsNewText();
+    $card.hidden = false;
+
+    const dismiss = () => { $card.hidden = true; markSeen(); };
+    document.getElementById('whatsNewDismiss')?.addEventListener('click', dismiss);
+    document.getElementById('whatsNewNotes')?.addEventListener('click', dismiss);
+    document.getElementById('whatsNewTry')?.addEventListener('click', () => { dismiss(); $settingsBtn.click(); });
+}
+
+function updateWhatsNewText() {
+    const $card = document.getElementById('whatsNew');
+    if (!$card) return;
+    for (const [id, key] of [['whatsNewLayout', 'whatsNewLayout'], ['whatsNewTheme', 'whatsNewTheme'],
+        ['whatsNewTry', 'whatsNewTry'], ['whatsNewNotes', 'whatsNewNotes'], ['whatsNewDismiss', 'whatsNewDismiss']]) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+    }
+    const $title = document.getElementById('whatsNewTitle');
+    if ($title) $title.textContent = t('whatsNewTitle').replace('{version}', $card.dataset.version || '');
+    const $notes = document.getElementById('whatsNewNotes');
+    if ($notes) $notes.href = releaseNotesUrl(getCurrentLanguage());
 }
 
 function openFocus(key) {

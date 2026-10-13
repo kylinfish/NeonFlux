@@ -599,7 +599,9 @@
       ]
     };
 
-    let currentLang = localStorage.getItem('neonflux-lang') || 'zh';
+    // 擴充功能更新後開啟時會帶 ?lang=zh|en
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    let currentLang = (urlLang === 'en' || urlLang === 'zh') ? urlLang : (localStorage.getItem('neonflux-lang') || 'zh');
 
     function renderTimeline(lang) {
       const t = releaseI18n[lang];
