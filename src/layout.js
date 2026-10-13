@@ -7,6 +7,13 @@ function clampColCount(n) {
     return Math.max(1, Math.min(5, parseInt(n || 3, 10) || 3));
 }
 
+// 排版模式：'grid' 經典欄位（依序排列、內容高度）| 'free' 自由排版（軌道）
+// 未設定時：存過軌道排版的視為 free，其餘（含新使用者）為經典
+function resolveLayoutMode(ui = {}) {
+    if (ui.layoutMode === 'grid' || ui.layoutMode === 'free') return ui.layoutMode;
+    return ui.layout ? 'free' : 'grid';
+}
+
 // 依目前啟用分類補齊 / 清理 layout（純函式，不改動輸入）
 // 軌數由使用者自行增減；initialCols 只用於舊使用者（無 layout）的初始分配
 function normalizeLayout(layout, enabledKeys = [], initialCols = 3) {
@@ -50,5 +57,5 @@ function readLayoutFromTracks(trackEls) {
 }
 
 if (typeof module !== 'undefined') {
-    module.exports = { normalizeLayout, readLayoutFromTracks, clampColCount };
+    module.exports = { normalizeLayout, readLayoutFromTracks, clampColCount, resolveLayoutMode };
 }

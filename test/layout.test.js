@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizeLayout } = require('../src/layout.js');
+const { normalizeLayout, resolveLayoutMode } = require('../src/layout.js');
 
 test('無 layout 時依順序輪流分配到各軌', () => {
     const out = normalizeLayout(undefined, ['a', 'b', 'c', 'd', 'e'], 3);
@@ -45,4 +45,18 @@ test('不改動輸入物件', () => {
 test('壞資料：track 非陣列視為空軌', () => {
     const layout = { tracks: [null, ['a']] };
     assert.deepEqual(normalizeLayout(layout, ['a', 'b'], 2).tracks, [['b'], ['a']]);
+});
+
+test('排版模式：新使用者預設經典欄位', () => {
+    assert.equal(resolveLayoutMode({}), 'grid');
+    assert.equal(resolveLayoutMode(undefined), 'grid');
+});
+
+test('排版模式：存過軌道排版、未設定模式 → 自由排版', () => {
+    assert.equal(resolveLayoutMode({ layout: { tracks: [['a']] } }), 'free');
+});
+
+test('排版模式：明確設定優先於推斷', () => {
+    assert.equal(resolveLayoutMode({ layoutMode: 'grid', layout: { tracks: [['a']] } }), 'grid');
+    assert.equal(resolveLayoutMode({ layoutMode: 'free' }), 'free');
 });

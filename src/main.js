@@ -128,6 +128,9 @@ const $limitInput = document.getElementById('limitInput');
 const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
 const $layoutWidthGroup = document.getElementById('layoutWidthGroup');
+const $layoutModeGroup = document.getElementById('layoutModeGroup');
+const $colCountRow = document.getElementById('colCountRow');
+const $colCountSelect = document.getElementById('colCountSelect');
 const $layoutResetBtn = document.getElementById('layoutResetBtn');
 const $normalizeGroupToggle = document.getElementById('normalizeGroupToggle');
 
@@ -263,7 +266,7 @@ async function applyImportedSettings(imported) {
     if ($sortSelect) $sortSelect.value = merged.sortBy || 'latest';
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!merged.ui?.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(merged.categories);
-    applyColumnCount(merged.ui?.colCount || 3);
+    applyLayoutMode();
     await refreshAndRender();
 }
 
@@ -324,6 +327,18 @@ function defaultIconDataUri() {
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
+function isFreeLayout() {
+    return resolveLayoutMode(STATE.settings.ui) === 'free';
+}
+
+// 依模式套用 body class 與欄數：經典用 colCount（1–4），自由排版用 trackCols（軌道寬度）
+function applyLayoutMode() {
+    const ui = STATE.settings.ui || {};
+    const free = isFreeLayout();
+    document.body.classList.toggle('mode-grid', !free);
+    applyColumnCount(free ? (ui.trackCols || ui.colCount || 3) : Math.min(4, ui.colCount || 3));
+}
+
 function applyColumnCount(n) {
     n = clampColCount(n);
     CURRENT_COLS = n;
@@ -344,6 +359,14 @@ function genUniqueKey(base, existing) {
 
 // 分類管理手風琴：目前展開的分類 key（同時只展開一個）
 let OPEN_CAT_KEY = null;
+
+// 設定對話框中的排版模式（按「儲存」才套用）；欄位數只在經典模式顯示
+function setLayoutModeField(mode) {
+    if (!$layoutModeGroup) return;
+    $layoutModeGroup.dataset.value = mode;
+    $layoutModeGroup.querySelectorAll('button[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    if ($colCountRow) $colCountRow.hidden = mode !== 'grid';
+}
 
 function setCategoryFilter(filter) {
     if (!$categoriesUI) return;
@@ -610,6 +633,23 @@ function currentLayout() {
 }
 
 function renderGrid(cats, query = '') {
+    if (isFreeLayout()) renderTrackGrid(cats, query);
+    else renderClassicGrid(cats, query);
+}
+
+// 經典欄位：依分類順序排入 N 欄，沒有紀錄的分類隱藏
+function renderClassicGrid(cats, query = '') {
+    $grid.innerHTML = '';
+    $grid.classList.remove('has-overflow');
+    const q = query.trim().toLowerCase();
+    for (const cat of (STATE.settings.categories || []).filter(c => c.enabled !== false)) {
+        const card = renderCard(cat, cats, q, false, true);
+        if (card) $grid.appendChild(card);
+    }
+    updateScrollHints();
+}
+
+function renderTrackGrid(cats, query = '') {
     const scrollLeft = $grid.scrollLeft;
     $grid.innerHTML = '';
     const editing = !!STATE.layoutDraft;
@@ -654,6 +694,7 @@ function renderGrid(cats, query = '') {
 // 左右箭頭：只在該方向還有內容時顯示
 function updateScrollHints() {
     if (!$gridPrevBtn || !$gridNextBtn) return;
+    if (!isFreeLayout()) { $gridPrevBtn.hidden = $gridNextBtn.hidden = true; return; }
     $gridPrevBtn.hidden = $grid.scrollLeft <= 2;
     $gridNextBtn.hidden = $grid.scrollLeft + $grid.clientWidth >= $grid.scrollWidth - 2;
 }
@@ -664,14 +705,14 @@ function scrollByTrack(dir) {
     $grid.scrollBy({ left: dir * step, behavior: 'smooth' });
 }
 
-function renderCard(cat, cats, q, editing) {
+function renderCard(cat, cats, q, editing, hideEmpty = false) {
     if (!cat) return null;
     const list = cats[cat.key] || [];
     const filtered = q
         ? list.filter(it => (it.title || '').toLowerCase().includes(q) || (it.url || '').toLowerCase().includes(q))
         : list;
     // 只有搜尋時才隱藏 0 筆的分類；否則照 layout 顯示（含剛啟用、尚無紀錄的分類）
-    if (!filtered.length && q && !editing) return null;
+    if (!filtered.length && (q || hideEmpty) && !editing) return null;
 
     const card = document.createElement('section');
     card.className = `card ${cat.key}`;
@@ -733,10 +774,10 @@ async function exitLayoutEdit(save) {
     if (!STATE.layoutDraft) return;
     if (save) {
         STATE.settings.ui.layout = STATE.layoutDraft;
-        STATE.settings.ui.colCount = CURRENT_COLS;
+        STATE.settings.ui.trackCols = CURRENT_COLS;
         await saveSettings(STATE.settings);
     } else {
-        applyColumnCount(STATE.settings.ui.colCount || 3); // 取消：還原軌道寬度
+        applyLayoutMode(); // 取消：還原軌道寬度
     }
     STATE.layoutDraft = null;
     document.body.classList.remove('layout-editing');
@@ -964,6 +1005,14 @@ function updateUIText() {
     const settingsNormalizeGroupLabel = document.getElementById('settingsNormalizeGroupLabel');
     if (settingsNormalizeGroupLabel) settingsNormalizeGroupLabel.textContent = t('settingsNormalizeGroup');
 
+    // 排版模式 / 欄位數
+    for (const [id, key] of [['settingsLayoutModeLabel', 'settingsLayoutMode'], ['layoutModeGrid', 'layoutModeGrid'],
+        ['layoutModeFree', 'layoutModeFree'], ['settingsColCountLabel', 'settingsColCount'],
+        ['colCount1Option', 'colCount1'], ['colCount2Option', 'colCount2'], ['colCount3Option', 'colCount3'], ['colCount4Option', 'colCount4']]) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+    }
+
     // 排版工具列
     for (const [id, key] of [['layoutWidthLabel', 'layoutWidth'], ['layoutWidth2', 'layoutWidthWide'], ['layoutWidth3', 'layoutWidthNormal'],
         ['layoutWidth4', 'layoutWidthNarrow'], ['layoutWidth5', 'layoutWidthNarrower'], ['layoutHint', 'layoutHint'], ['layoutResetBtn', 'btnLayoutReset']]) {
@@ -1029,7 +1078,7 @@ async function init() {
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
-    applyColumnCount(STATE.settings.ui.colCount || 3);
+    applyLayoutMode();
     updateCurtainBtnLabel();
     
     await refreshAndRender();
@@ -1053,6 +1102,8 @@ async function init() {
     $settingsBtn.addEventListener('click', () => {
         // 每次開啟都以已儲存的分類為準（上次按取消的修改不殘留）
         if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
+        setLayoutModeField(resolveLayoutMode(STATE.settings.ui));
+        if ($colCountSelect) $colCountSelect.value = String(Math.min(4, STATE.settings.ui.colCount || 3));
         $settingsDialog.showModal();
     });
 
@@ -1135,6 +1186,10 @@ async function init() {
     });
     $resetCategoriesUIButton?.addEventListener('click', () => {
         renderCategoriesUI(defaultCategories());
+    });
+    $layoutModeGroup?.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-mode]');
+        if (btn) setLayoutModeField(btn.dataset.mode);
     });
     $catFilter?.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-filter]');
@@ -1221,6 +1276,13 @@ async function init() {
                     if (Array.isArray(arr) && arr.length) STATE.settings.categories = arr;
                 }
             } catch { /* ignore */ }
+
+            // 排版模式切換：編輯中的草稿先放棄
+            const layoutMode = $layoutModeGroup?.dataset.value || resolveLayoutMode(STATE.settings.ui);
+            if (layoutMode !== resolveLayoutMode(STATE.settings.ui)) await exitLayoutEdit(false);
+            STATE.settings.ui.layoutMode = layoutMode;
+            if ($colCountSelect) STATE.settings.ui.colCount = Math.max(1, Math.min(4, parseInt($colCountSelect.value || 3, 10)));
+            applyLayoutMode();
 
             STATE.settings.perCategoryLimit = perCategoryLimit;
             STATE.settings.recentDays = recentDays;
