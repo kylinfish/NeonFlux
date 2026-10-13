@@ -137,21 +137,86 @@
       .cat-delete, .remove-matcher { border-color:#bd6b6b ;}
 
       main {
-        position: absolute; inset: 90px 0 0 0; overflow: auto; padding: 8px 22px 24px;
+        position: absolute; inset: 90px 0 0 0; overflow: auto; padding: 8px 22px 0;
+        display: flex; flex-direction: column;
       }
 
-      /* Grid layout with controllable column count */
-      .grid { display: grid; grid-template-columns: repeat(var(--col, 3), minmax(0, 1fr)); gap: 16px; align-content: start; }
-      @media (max-width: 1200px) { .grid { grid-template-columns: repeat(var(--col, 3), minmax(0, 1fr)); } }
-      @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-      @media (max-width: 700px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      /* Track layout：一畫面顯示 --col 軌，超過時橫向滾動；每軌卡片由上而下堆疊並平分高度 */
+      .grid-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+      .grid {
+        --track-w: calc((100% - (var(--col, 3) - 1) * 16px) / var(--col, 3));
+        display: flex; gap: 16px; flex: 1 1 auto; min-width: 0; min-height: 0;
+        overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity;
+        padding: 6px; margin: -6px; scroll-padding: 6px; /* 預留空間避免裁掉編輯模式外框 */
+      }
+      .track { flex: 0 0 var(--track-w); display: flex; flex-direction: column; gap: 16px; min-height: 0; position: relative; scroll-snap-align: start; }
+      .track > .card { flex: 1 1 0; min-height: 160px; margin: 0; display: flex; flex-direction: column; }
+      .track > .card .list-container { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+      .track > .card .list { flex: 1 1 auto; min-height: 0; overflow: auto; align-content: start; }
+
+      /* 編輯排版工具列：只在編輯模式顯示 */
+      .layout-toolbar { display: none; align-items: center; gap: 10px; margin: 0 0 12px; flex: 0 0 auto; }
+      .layout-editing .layout-toolbar { display: flex; }
+      .layout-toolbar-label { font-size: 13px; color: var(--text); }
+      .layout-toolbar-hint { margin-left: auto; font-size: 12px; color: var(--muted); }
+      .layout-toolbar .btn { padding: 7px 12px; font-size: 13px; }
+
+      /* 編輯排版模式：預留 + 欄（56px + gap）讓它在一畫面內可見 */
+      .layout-editing .grid { --track-w: calc((100% - 72px - (var(--col, 3) - 1) * 16px) / var(--col, 3)); }
+      #layoutBtn.active { background: var(--settings-highlight); border-color: var(--accent); }
+      #layoutBtn span { font-size: 13px; }
+      .layout-editing .track { border-radius: 18px; outline: 1px dashed var(--stroke); outline-offset: 4px; }
+      .layout-editing .track.is-empty::after { content: attr(data-hint); position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 13px; pointer-events: none; }
+      .track-remove { position: absolute; top: 8px; right: 8px; z-index: 3; padding: 6px; }
+      .track-remove svg { width: 14px; height: 14px; }
+      .track:not(.is-empty) .track-remove { display: none; }
+      .track-add {
+        flex: 0 0 56px; border-radius: 18px; border: 1px dashed var(--stroke); background: var(--glass);
+        color: var(--muted); cursor: pointer; display: grid; place-items: center;
+      }
+      .track-add:hover { background: var(--glass-strong); color: var(--text); border-color: var(--accent); }
+      .track-add svg { width: 22px; height: 22px; }
+      .layout-editing .card { cursor: grab; }
+      .layout-editing .card .list-container { pointer-events: none; opacity: 0.6; }
+      .layout-editing .card .focus-btn { display: none; }
+      .card.dragging { opacity: 0.4; }
+
+      /* 軌道超出一畫面：縮小軌寬讓下一軌露出 48px，並顯示左右箭頭 */
+      .grid.has-overflow { --track-w: calc((100% - 48px - var(--col, 3) * 16px) / var(--col, 3)); }
+      .grid-arrow {
+        position: absolute; top: 50%; z-index: 5; width: 40px; height: 40px; margin-top: -20px;
+        border-radius: 50%; border: 1px solid var(--stroke); background: var(--settings-bg); color: var(--text);
+        display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(var(--blur));
+        box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      }
+      .grid-arrow[hidden] { display: none; }
+      .grid-arrow:hover { border-color: var(--accent); }
+      .grid-arrow svg { width: 20px; height: 20px; }
+      .grid-arrow.left { left: -12px; }
+      .grid-arrow.right { right: -12px; }
+      /* 拖曳中讓滑鼠穿透箭頭，交給 grid 邊緣自動捲動 */
+      .grid-wrap.dragging .grid-arrow { pointer-events: none; }
+      .list-empty { color: var(--muted); font-size: 12px; padding: 10px; }
+
+      /* 窄螢幕：單欄、依內容高度（最多 N 筆），不提供編輯排版 */
+      @media (max-width: 900px) {
+        main { display: block; }
+        .grid-wrap { display: block; }
+        .grid-arrow { display: none !important; }
+        .layout-toolbar { display: none !important; }
+        .grid { flex-direction: column; overflow: visible; }
+        .track { flex: none; }
+        .track-add { display: none; }
+        .track > .card { flex: none; min-height: 0; }
+        .track > .card .list { max-height: var(--list-max); }
+        #layoutBtn { display: none; }
+      }
       @media (max-width: 540px) {
         header { flex-wrap: wrap; }
         .title { width: 100%; }
         .controls { width: 100%; justify-content: space-between; }
         .search input { width: 100%; min-width: 0; }
         main { inset: 110px 0 0 0; }
-        .grid { grid-template-columns: 1fr; }
       }
 
       .card {
@@ -387,12 +452,17 @@
         transform-origin: left center;
       }
 
+      /* 固定在對話框底部，不隨內容捲動 */
       .settings-actions {
         display: flex;
         gap: 10px;
-        justify-content: center;
-        margin-top: 12px;
+        justify-content: flex-end;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        flex: 0 0 auto;
       }
+      .settings-actions .btn.primary { background: var(--settings-highlight); border-color: var(--accent); }
 
       .settings-actions .btn {
         width: 110px;
@@ -413,9 +483,23 @@
         background: rgba(10,14,22,0.25);
         border: 1px dashed rgba(255,255,255,0.08);
         display: grid;
-        grid-template-rows: auto 1fr;
+        grid-template-rows: auto auto 1fr;
         min-height: 0;
       }
+      .settings-body > .settings-section:first-child { overflow: auto; }
+
+      /* 分類管理工具列：標題 / 篩選 / 動作 */
+      .cat-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+      .cat-toolbar .settings-section-title { margin: 0 auto 0 0; }
+      .cat-toolbar .btn { padding: 7px 12px; font-size: 13px; }
+      .segmented { display: inline-flex; border: 1px solid var(--stroke); border-radius: 10px; overflow: hidden; }
+      .segmented button { background: transparent; border: 0; color: var(--muted); padding: 7px 10px; font-size: 12px; cursor: pointer; }
+      .segmented button:hover { color: var(--text); }
+      .segmented button.active { background: var(--settings-highlight); color: var(--text); }
+      .cat-order-hint { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+      #categoriesUI { display: grid; gap: 8px; }
+      #categoriesUI[data-filter="enabled"] .cat[data-enabled="0"],
+      #categoriesUI[data-filter="disabled"] .cat[data-enabled="1"] { display: none; }
 
       .settings-summary {
         color: var(--muted);
@@ -471,20 +555,24 @@
         box-shadow: inset 0 0 0 2px rgba(124,195,255,0.4), 0 18px 38px rgba(0,0,0,0.4);
       }
 
-      .settings-categories .cat[data-enabled="0"] {
-        opacity: 0.45;
-        pointer-events: none;
-      }
+      .settings-categories .cat[data-enabled="0"] .cat-name,
+      .settings-categories .cat[data-enabled="0"] .cat-meta { opacity: 0.45; }
 
-      .settings-categories .cat[data-enabled="0"] .cat-header {
-        background: rgba(0, 0, 0, 0.2);
-        border-color: rgba(255,255,255,0.08);
-      }
-
-      .settings-categories .cat[data-enabled="0"] .cat-header input.cat-enabled {
-        pointer-events: auto;
-        border-color: rgba(255,255,255,0.3);
-      }
+      /* 手風琴：收合時只顯示標題列 */
+      .settings-categories .cat { padding: 6px; gap: 8px; }
+      .settings-categories .cat:hover { transform: none; }
+      .settings-categories .cat:not(.open) .cat-body { display: none; }
+      .settings-categories .cat-body { display: grid; gap: 10px; padding: 0 6px 6px; }
+      .settings-categories .cat-header { cursor: pointer; flex-wrap: nowrap; }
+      .cat-name { font-weight: 600; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cat-meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+      .cat-chevron { display: inline-flex; color: var(--muted); transition: transform 0.15s ease; }
+      .cat-chevron svg { width: 16px; height: 16px; }
+      .cat.open .cat-chevron { transform: rotate(180deg); }
+      /* 收合列壓低高度 */
+      .settings-categories .cat .cat-header { padding: 6px 8px; }
+      .settings-categories .cat-actions .btn { width: 30px; height: 30px; padding: 0; }
+      .settings-categories .cat-actions .btn svg { width: 14px; height: 14px; }
 
       .settings-categories .cat:nth-child(odd) {
         background:
@@ -607,12 +695,28 @@
 
         <button class="btn" id="refreshBtn" title="同步瀏覽記錄"></button>
         <button class="btn" id="curtainBtn" title="隱私門簾（投影用）"></button>
+        <button class="btn" id="layoutBtn" title="編輯排版"></button>
         <button class="btn" id="settingsBtn" title="設定"></button>
       </div>
     </header>
 
     <main>
-      <div id="grid" class="grid"></div>
+      <div class="layout-toolbar" id="layoutToolbar">
+        <span class="layout-toolbar-label" id="layoutWidthLabel">軌道寬度</span>
+        <div class="segmented" id="layoutWidthGroup" role="group">
+          <button type="button" data-cols="2" id="layoutWidth2">寬</button>
+          <button type="button" data-cols="3" id="layoutWidth3">標準</button>
+          <button type="button" data-cols="4" id="layoutWidth4">窄</button>
+          <button type="button" data-cols="5" id="layoutWidth5">很窄</button>
+        </div>
+        <span class="layout-toolbar-hint" id="layoutHint">拖曳卡片調整位置 · Esc 取消</span>
+        <button class="btn" type="button" id="layoutResetBtn">重置排版</button>
+      </div>
+      <div class="grid-wrap" id="gridWrap">
+        <div id="grid" class="grid"></div>
+        <button class="grid-arrow left" id="gridPrevBtn" type="button" hidden></button>
+        <button class="grid-arrow right" id="gridNextBtn" type="button" hidden></button>
+      </div>
       <div class="footer">
         <span id="footerText">瀏覽記錄自動分類 · 本機儲存 · 隱私優先</span>
         <a id="rateLink" href="https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb" target="_blank" rel="noreferrer">給 5 星好評</a>
@@ -644,15 +748,6 @@
               </select>
             </label>
             <label class="settings-row">
-              <span id="settingsColCountLabel" class="settings-label">每列分類數（欄位數）</span>
-              <select id="colCountSelect" class="settings-select">
-                <option value="1" id="colCount1Option">1 欄</option>
-                <option value="2" id="colCount2Option">2 欄</option>
-                <option value="3" id="colCount3Option">3 欄</option>
-                <option value="4" id="colCount4Option">4 欄</option>
-              </select>
-            </label>
-            <label class="settings-row">
               <span id="langLabel" class="settings-label">語言</span>
               <select id="langSelect" class="settings-select">
                 <option value="zh">中文</option>
@@ -672,24 +767,29 @@
               </span>
             </div>
             <input type="file" id="importSettingsFile" accept=".json,application/json" style="display:none;" />
-
-            <div class="settings-actions">
-              <button class="btn" value="cancel" id="settingsCancelBtn">取消</button>
-              <button class="btn" value="confirm" id="settingsSaveBtn">儲存</button>
-            </div>
           </div>
 
           <div class="settings-section settings-details">
-            <div id="settingsCategoryManagementSummary" class="settings-section-title">分類管理（進階）</div>
-            <div class="settings-categories">
-              <div id="categoriesUI" style="display:grid; gap:10px;"></div>
-              <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
-                <button class="btn" id="addCategoryBtn" type="button">新增分類</button>
-                <button class="btn" id="resetCategoriesUIButton" type="button">重置為預設</button>
-                <button class="btn" id="saveCategoriesUIButton" type="button">儲存分類</button>
+            <div class="cat-toolbar">
+              <div id="settingsCategoryManagementSummary" class="settings-section-title">分類管理（進階）</div>
+              <div class="segmented" id="catFilter" role="group">
+                <button type="button" class="active" data-filter="all" id="catFilterAll">全部</button>
+                <button type="button" data-filter="enabled" id="catFilterEnabled">已啟用</button>
+                <button type="button" data-filter="disabled" id="catFilterDisabled">已停用</button>
               </div>
+              <button class="btn" id="resetCategoriesUIButton" type="button">重置為預設</button>
+              <button class="btn" id="addCategoryBtn" type="button">新增分類</button>
+            </div>
+            <div class="cat-order-hint" id="catOrderHint">順序 = 比對優先順序：同一網址符合多個分類時，排前面的優先</div>
+            <div class="settings-categories">
+              <div id="categoriesUI" data-filter="all"></div>
             </div>
           </div>
+        </div>
+
+        <div class="settings-actions">
+          <button class="btn" value="cancel" id="settingsCancelBtn">取消</button>
+          <button class="btn primary" value="confirm" id="settingsSaveBtn">儲存</button>
         </div>
       </form>
     </dialog>
@@ -713,6 +813,7 @@
     </dialog>
 
 
+    <script src="./layout.js" defer></script>
     <script src="./main.js" defer></script>
   </body>
   </html>

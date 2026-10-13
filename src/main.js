@@ -115,22 +115,28 @@ const DEFAULT_SETTINGS = {
 
 // DOM refs
 const $grid = document.getElementById('grid');
+const $gridWrap = document.getElementById('gridWrap');
+const $gridPrevBtn = document.getElementById('gridPrevBtn');
+const $gridNextBtn = document.getElementById('gridNextBtn');
 const $search = document.getElementById('search');
 const $refreshBtn = document.getElementById('refreshBtn');
 const $settingsBtn = document.getElementById('settingsBtn');
 const $curtainBtn = document.getElementById('curtainBtn');
+const $layoutBtn = document.getElementById('layoutBtn');
 const $settingsDialog = document.getElementById('settingsDialog');
 const $limitInput = document.getElementById('limitInput');
 const $daysInput = document.getElementById('daysInput');
 const $sortSelect = document.getElementById('sortSelect');
-const $colCountSelect = document.getElementById('colCountSelect');
+const $layoutWidthGroup = document.getElementById('layoutWidthGroup');
+const $layoutResetBtn = document.getElementById('layoutResetBtn');
 const $normalizeGroupToggle = document.getElementById('normalizeGroupToggle');
 
 // 分類管理（UI）
 const $categoriesUI = document.getElementById('categoriesUI');
 const $addCategoryBtn = document.getElementById('addCategoryBtn');
 const $resetCategoriesUIButton = document.getElementById('resetCategoriesUIButton');
-const $saveCategoriesUIButton = document.getElementById('saveCategoriesUIButton');
+const $catFilter = document.getElementById('catFilter');
+const $settingsSaveBtn = document.getElementById('settingsSaveBtn');
 
 const $focusDialog = document.getElementById('focusDialog');
 const $focusList = document.getElementById('focusList');
@@ -144,7 +150,11 @@ let STATE = {
     filtered: [], // 過濾後（符合分類）
     cats: {}, // 最新一次 categorize 結果
     focusKey: null,
+    layoutDraft: null, // 編輯排版中的草稿 layout；null 表示非編輯模式
 };
+
+// 目前顯示的軌數（設定對話框中可即時預覽，故不直接讀 settings）
+let CURRENT_COLS = 3;
 
 // Storage helpers（含深度合併）
 function deepMerge(base, patch) {
@@ -237,6 +247,8 @@ function isValidBackup(obj) {
 
 // 完全取代目前設定（還原備份），並即時套用到 UI
 async function applyImportedSettings(imported) {
+    // 編輯排版中匯入：先放棄草稿，否則匯入的排版會被草稿蓋過
+    await exitLayoutEdit(false);
     // 用 DEFAULT_SETTINGS 補齊缺欄位（容錯 / 版本漂移），與 loadSettings 行為一致
     const merged = deepMerge(DEFAULT_SETTINGS, imported);
     if (!Array.isArray(merged.categories) || merged.categories.length === 0) {
@@ -249,7 +261,6 @@ async function applyImportedSettings(imported) {
     $limitInput.value = merged.perCategoryLimit;
     $daysInput.value = merged.recentDays;
     if ($sortSelect) $sortSelect.value = merged.sortBy || 'latest';
-    if ($colCountSelect) $colCountSelect.value = String(merged.ui?.colCount || 3);
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!merged.ui?.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(merged.categories);
     applyColumnCount(merged.ui?.colCount || 3);
@@ -314,7 +325,8 @@ function defaultIconDataUri() {
 }
 
 function applyColumnCount(n) {
-    n = Math.max(1, Math.min(4, parseInt(n || 3, 10)));
+    n = clampColCount(n);
+    CURRENT_COLS = n;
     if ($grid) {
         $grid.style.setProperty('--col', String(n));
     }
@@ -328,6 +340,15 @@ function genUniqueKey(base, existing) {
     let i = 1, c = k;
     while (existing.has(c)) c = `${k}-${i++}`;
     return c;
+}
+
+// 分類管理手風琴：目前展開的分類 key（同時只展開一個）
+let OPEN_CAT_KEY = null;
+
+function setCategoryFilter(filter) {
+    if (!$categoriesUI) return;
+    $categoriesUI.dataset.filter = filter;
+    $catFilter?.querySelectorAll('button[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
 }
 
 function renderCategoriesUI(cats = []) {
@@ -352,15 +373,20 @@ function renderCategoriesUI(cats = []) {
       </div>
     `).join('');
 
+        const ruleCount = matchers.filter(m => m.value).length;
         div.innerHTML = `
       <div class="cat-header">
         <input type="checkbox" class="cat-enabled settings-switch cat-toggle" ${enabled} />
+        <span class="cat-name">${escapeHtml(cat.label || cat.key || '')}</span>
+        <span class="cat-meta">${t('catRuleCount').replace('{count}', ruleCount)}</span>
         <div class="cat-actions">
           <button type="button" class="btn cat-up" title="${t('btnMoveUp')}">${getSvgIcon('chevronUp')}</button>
           <button type="button" class="btn cat-down" title="${t('btnMoveDown')}">${getSvgIcon('chevronDown')}</button>
           <button type="button" class="btn cat-delete" title="${t('btnDeleteCategory')}">${getSvgIcon('trash')}</button>
         </div>
+        <span class="cat-chevron">${getSvgIcon('chevronDown')}</span>
       </div>
+      <div class="cat-body">
       <div class="cat-fields">
         <input type="text" class="cat-label" value="${escapeHtml(cat.label || '')}" placeholder="${t('categoryLabel')}" />
         <input type="text" class="cat-key" value="${escapeHtml(cat.key || '')}" placeholder="${t('categoryKey')}" title="僅限小寫英數與 -，需唯一" />
@@ -370,8 +396,13 @@ function renderCategoriesUI(cats = []) {
         ${matcherRows}
         <div class="matcher-actions"><button type="button" class="btn add-matcher">${t('btnAddMatcher')}</button></div>
       </div>
+      </div>
     `;
         div.dataset.enabled = cat.enabled !== false ? '1' : '0';
+        div.classList.toggle('open', cat.key === OPEN_CAT_KEY);
+        // 標題列即時反映名稱
+        const $name = div.querySelector('.cat-name');
+        div.querySelector('.cat-label')?.addEventListener('input', (e) => { $name.textContent = e.target.value || cat.key; });
         const $toggle = div.querySelector('.cat-enabled');
         $toggle?.addEventListener('change', () => {
             div.dataset.enabled = $toggle.checked ? '1' : '0';
@@ -571,24 +602,85 @@ function renderListItems($container, list, opts = {}) {
     }
 }
 
+// 目前生效的排版：編輯中用草稿，否則用已儲存的 layout（皆經 normalize）
+function currentLayout() {
+    const enabledKeys = (STATE.settings.categories || []).filter(c => c.enabled !== false).map(c => c.key);
+    const source = STATE.layoutDraft || STATE.settings.ui?.layout;
+    return normalizeLayout(source, enabledKeys, CURRENT_COLS);
+}
+
 function renderGrid(cats, query = '') {
+    const scrollLeft = $grid.scrollLeft;
     $grid.innerHTML = '';
-    const q = query.trim().toLowerCase();
+    const editing = !!STATE.layoutDraft;
+    const q = editing ? '' : query.trim().toLowerCase();
     const order = (STATE.settings.categories || []).filter(c => c.enabled !== false);
+    const catByKey = new Map(order.map(c => [c.key, c]));
+    const layout = currentLayout();
 
-    for (const cat of order) {
-        const list = cats[cat.key] || [];
-        const filtered = q
-            ? list.filter(it => (it.title || '').toLowerCase().includes(q) || (it.url || '').toLowerCase().includes(q))
-            : list;
-        if (!filtered.length) continue;
+    layout.tracks.forEach((keys, trackIdx) => {
+        const $track = document.createElement('div');
+        $track.className = 'track';
+        $track.dataset.track = String(trackIdx);
+        $track.dataset.hint = t('layoutDropHint');
+        for (const key of keys) {
+            const card = renderCard(catByKey.get(key), cats, q, editing);
+            if (card) $track.appendChild(card);
+        }
+        const empty = !$track.querySelector('.card');
+        // 非編輯模式：空軌不佔位置
+        if (empty && !editing) return;
+        if (editing) {
+            $track.classList.toggle('is-empty', empty);
+            // 只剩一軌時不可刪
+            if (layout.tracks.length > 1) {
+                $track.insertAdjacentHTML('afterbegin',
+                    `<button class="btn track-remove" type="button" title="${t('btnRemoveTrack')}">${getSvgIcon('x')}</button>`);
+            }
+        }
+        $grid.appendChild($track);
+    });
 
-        const card = document.createElement('section');
-        card.className = `card ${cat.key}`;
-        const count = filtered.length;
+    if (editing) {
+        $grid.insertAdjacentHTML('beforeend',
+            `<button class="track-add" type="button" title="${t('btnAddTrack')}">${getSvgIcon('plus')}</button>`);
+    }
+    // 軌數超過一畫面可顯示的數量 → 露邊提示（CSS has-overflow）
+    $grid.classList.toggle('has-overflow', $grid.querySelectorAll(':scope > .track').length > CURRENT_COLS);
+    $grid.scrollLeft = scrollLeft;
+    updateScrollHints();
+}
 
-        const countText = t('cardItemCount').replace('{count}', count);
-        card.innerHTML = `
+// 左右箭頭：只在該方向還有內容時顯示
+function updateScrollHints() {
+    if (!$gridPrevBtn || !$gridNextBtn) return;
+    $gridPrevBtn.hidden = $grid.scrollLeft <= 2;
+    $gridNextBtn.hidden = $grid.scrollLeft + $grid.clientWidth >= $grid.scrollWidth - 2;
+}
+
+function scrollByTrack(dir) {
+    const $first = $grid.querySelector(':scope > .track');
+    const step = $first ? $first.offsetWidth + 16 : $grid.clientWidth;
+    $grid.scrollBy({ left: dir * step, behavior: 'smooth' });
+}
+
+function renderCard(cat, cats, q, editing) {
+    if (!cat) return null;
+    const list = cats[cat.key] || [];
+    const filtered = q
+        ? list.filter(it => (it.title || '').toLowerCase().includes(q) || (it.url || '').toLowerCase().includes(q))
+        : list;
+    // 只有搜尋時才隱藏 0 筆的分類；否則照 layout 顯示（含剛啟用、尚無紀錄的分類）
+    if (!filtered.length && q && !editing) return null;
+
+    const card = document.createElement('section');
+    card.className = `card ${cat.key}`;
+    card.dataset.key = cat.key;
+    if (editing) card.draggable = true;
+    const count = filtered.length;
+
+    const countText = t('cardItemCount').replace('{count}', count);
+    card.innerHTML = `
       <div class="card-header">
         <div class="card-title">
           <span class="dot"></span>
@@ -606,26 +698,147 @@ function renderGrid(cats, query = '') {
       </div>
     `;
 
-        const $listContainer = card.querySelector('.list-container');
-        const $list = card.querySelector('.list');
+    const $listContainer = card.querySelector('.list-container');
+    const $list = card.querySelector('.list');
 
-        // 固定高度永遠啟用：最多顯示 N 筆，溢位滾動；若實際 < N，則高度自然收縮
-        {
-            const n = Math.max(1, Number(STATE.settings.perCategoryLimit || 5));
-            $list.style.maxHeight = `calc(var(--row-h) * ${n})`;
-            $list.style.overflow = 'auto';
-        }
+    // 寬螢幕由軌道平分高度；窄螢幕（單欄）退回最多顯示 N 筆的高度
+    const n = Math.max(1, Number(STATE.settings.perCategoryLimit || 5));
+    $list.style.setProperty('--list-max', `calc(var(--row-h) * ${n})`);
 
+    if (filtered.length) {
         renderListItems($list, filtered, { catIconUrl: cat.iconUrl || '' });
-
-        // 將門簾加到 list-container 而非 list 內部
-        if (STATE.settings.ui?.privacyCurtainEnabled) {
-            const curtain = makeCurtain();
-            $listContainer.appendChild(curtain);
-        }
-
-        $grid.appendChild(card);
+    } else {
+        $list.innerHTML = `<div class="list-empty">${t('cardEmpty')}</div>`;
     }
+
+    // 將門簾加到 list-container 而非 list 內部
+    if (STATE.settings.ui?.privacyCurtainEnabled) {
+        const curtain = makeCurtain();
+        $listContainer.appendChild(curtain);
+    }
+
+    return card;
+}
+
+// 排版編輯模式
+function enterLayoutEdit() {
+    STATE.layoutDraft = currentLayout();
+    document.body.classList.add('layout-editing');
+    updateLayoutWidthButtons();
+    updateLayoutBtn();
+    renderGrid(STATE.cats, $search.value);
+}
+
+async function exitLayoutEdit(save) {
+    if (!STATE.layoutDraft) return;
+    if (save) {
+        STATE.settings.ui.layout = STATE.layoutDraft;
+        STATE.settings.ui.colCount = CURRENT_COLS;
+        await saveSettings(STATE.settings);
+    } else {
+        applyColumnCount(STATE.settings.ui.colCount || 3); // 取消：還原軌道寬度
+    }
+    STATE.layoutDraft = null;
+    document.body.classList.remove('layout-editing');
+    updateLayoutBtn();
+    renderGrid(STATE.cats, $search.value);
+}
+
+// 軌道寬度（一畫面顯示幾軌）：編輯中即時預覽，按「完成」才儲存
+function setLayoutWidth(n) {
+    applyColumnCount(n);
+    updateLayoutWidthButtons();
+    renderGrid(STATE.cats, $search.value);
+}
+
+function updateLayoutWidthButtons() {
+    $layoutWidthGroup?.querySelectorAll('button[data-cols]').forEach(b => b.classList.toggle('active', Number(b.dataset.cols) === CURRENT_COLS));
+}
+
+// 重置排版：回到依分類順序輪流分配（仍需按「完成」才儲存）
+function resetLayoutDraft() {
+    if (!STATE.layoutDraft) return;
+    const enabledKeys = (STATE.settings.categories || []).filter(c => c.enabled !== false).map(c => c.key);
+    STATE.layoutDraft = normalizeLayout(null, enabledKeys, CURRENT_COLS);
+    renderGrid(STATE.cats, $search.value);
+}
+
+function addTrack() {
+    if (!STATE.layoutDraft) return;
+    STATE.layoutDraft.tracks.push([]);
+    renderGrid(STATE.cats, $search.value);
+    $grid.scrollTo({ left: $grid.scrollWidth, behavior: 'smooth' });
+}
+
+function removeTrack(idx) {
+    const tracks = STATE.layoutDraft?.tracks;
+    // 有卡片的軌不能刪，避免分類從畫面消失
+    if (!tracks || tracks.length <= 1 || tracks[idx]?.length) return;
+    tracks.splice(idx, 1);
+    renderGrid(STATE.cats, $search.value);
+}
+
+function updateLayoutBtn() {
+    if (!$layoutBtn) return;
+    const editing = !!STATE.layoutDraft;
+    $layoutBtn.classList.toggle('active', editing);
+    $layoutBtn.innerHTML = editing ? `${getSvgIcon('columns')}<span>${t('btnLayoutDone')}</span>` : getSvgIcon('columns');
+    $layoutBtn.title = editing ? t('btnLayoutDone') : t('btnLayoutEdit');
+}
+
+// 拖曳：dragover 時直接移動卡片 DOM，dragend 時從 DOM 讀回草稿
+function initLayoutDrag() {
+    let $dragging = null;
+
+    $grid.addEventListener('dragstart', (e) => {
+        if (!STATE.layoutDraft) return;
+        $dragging = e.target.closest?.('.card');
+        if (!$dragging) return;
+        $gridWrap?.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', $dragging.dataset.key || '');
+        $dragging.classList.add('dragging');
+    });
+
+    $grid.addEventListener('dragover', (e) => {
+        if (!$dragging) return;
+        // 拖到左右邊緣時自動橫向捲動，才能放到畫面外的軌道
+        const rect = $grid.getBoundingClientRect();
+        if (e.clientX > rect.right - 60) $grid.scrollLeft += 20;
+        else if (e.clientX < rect.left + 60) $grid.scrollLeft -= 20;
+        const $track = e.target.closest('.track');
+        if (!$track) return;
+        e.preventDefault();
+        const after = Array.from($track.querySelectorAll(':scope > .card:not(.dragging)'))
+            .find(card => {
+                const r = card.getBoundingClientRect();
+                return e.clientY < r.top + r.height / 2;
+            });
+        if (after) {
+            if ($dragging.nextSibling !== after) $track.insertBefore($dragging, after);
+        } else if ($track.lastElementChild !== $dragging) {
+            $track.appendChild($dragging);
+        }
+        $grid.querySelectorAll(':scope > .track').forEach(el => el.classList.toggle('is-empty', !el.querySelector('.card')));
+    });
+
+    $grid.addEventListener('drop', (e) => { if ($dragging) e.preventDefault(); });
+
+    $grid.addEventListener('dragend', () => {
+        if (!$dragging) return;
+        $dragging.classList.remove('dragging');
+        $gridWrap?.classList.remove('dragging');
+        $dragging = null;
+        STATE.layoutDraft = readLayoutFromTracks($grid.querySelectorAll(':scope > .track'));
+        renderGrid(STATE.cats, $search.value);
+    });
+
+    $grid.addEventListener('click', (e) => {
+        if (!STATE.layoutDraft) return;
+        if (e.target.closest('.track-add')) return addTrack();
+        const $remove = e.target.closest('.track-remove');
+        if ($remove) removeTrack(Number($remove.closest('.track').dataset.track));
+    });
 }
 
 function getCategoryFullList(key) {
@@ -694,6 +907,8 @@ function initializeIcons() {
     if ($curtainBtn) $curtainBtn.innerHTML = getSvgIcon('unlock');
     if ($settingsBtn) $settingsBtn.innerHTML = getSvgIcon('settings');
     if ($focusCloseBtn) $focusCloseBtn.innerHTML = getSvgIcon('x');
+    if ($gridPrevBtn) $gridPrevBtn.innerHTML = getSvgIcon('chevronLeft');
+    if ($gridNextBtn) $gridNextBtn.innerHTML = getSvgIcon('chevronRight');
 }
 
 // 初始化語言
@@ -714,6 +929,8 @@ function updateUIText() {
 
     // 更新按鈕 title
     $refreshBtn.title = t('btnSync');
+    if ($gridPrevBtn) $gridPrevBtn.title = t('btnScrollPrev');
+    if ($gridNextBtn) $gridNextBtn.title = t('btnScrollNext');
     $settingsBtn.title = t('btnSettings');
 
     // 更新 footer
@@ -744,22 +961,15 @@ function updateUIText() {
     const sortSmartOption = document.getElementById('sortSmartOption');
     if (sortSmartOption) sortSmartOption.textContent = t('settingsSortSmart');
 
-    const settingsColCountLabel = document.getElementById('settingsColCountLabel');
-    if (settingsColCountLabel) settingsColCountLabel.textContent = t('settingsColCount');
     const settingsNormalizeGroupLabel = document.getElementById('settingsNormalizeGroupLabel');
     if (settingsNormalizeGroupLabel) settingsNormalizeGroupLabel.textContent = t('settingsNormalizeGroup');
 
-    const colCount1Option = document.getElementById('colCount1Option');
-    if (colCount1Option) colCount1Option.textContent = t('colCount1');
-
-    const colCount2Option = document.getElementById('colCount2Option');
-    if (colCount2Option) colCount2Option.textContent = t('colCount2');
-
-    const colCount3Option = document.getElementById('colCount3Option');
-    if (colCount3Option) colCount3Option.textContent = t('colCount3');
-
-    const colCount4Option = document.getElementById('colCount4Option');
-    if (colCount4Option) colCount4Option.textContent = t('colCount4');
+    // 排版工具列
+    for (const [id, key] of [['layoutWidthLabel', 'layoutWidth'], ['layoutWidth2', 'layoutWidthWide'], ['layoutWidth3', 'layoutWidthNormal'],
+        ['layoutWidth4', 'layoutWidthNarrow'], ['layoutWidth5', 'layoutWidthNarrower'], ['layoutHint', 'layoutHint'], ['layoutResetBtn', 'btnLayoutReset']]) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+    }
 
     const langLabel = document.getElementById('langLabel');
     if (langLabel) langLabel.textContent = t('settingsLanguage');
@@ -779,8 +989,12 @@ function updateUIText() {
     const resetCategoriesUIButton = document.getElementById('resetCategoriesUIButton');
     if (resetCategoriesUIButton) resetCategoriesUIButton.textContent = t('btnResetCategories');
 
-    const saveCategoriesUIButton = document.getElementById('saveCategoriesUIButton');
-    if (saveCategoriesUIButton) saveCategoriesUIButton.textContent = t('btnSaveCategories');
+    // 分類管理工具列
+    for (const [id, key] of [['catFilterAll', 'catFilterAll'], ['catFilterEnabled', 'catFilterEnabled'],
+        ['catFilterDisabled', 'catFilterDisabled'], ['catOrderHint', 'catOrderHint']]) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+    }
 
     const settingsBackupLabel = document.getElementById('settingsBackupLabel');
     if (settingsBackupLabel) settingsBackupLabel.textContent = t('settingsBackup');
@@ -797,6 +1011,7 @@ function updateUIText() {
 
     // 更新 curtain button
     updateCurtainBtnLabel();
+    updateLayoutBtn();
 }
 
 async function init() {
@@ -811,7 +1026,6 @@ async function init() {
     $limitInput.value = STATE.settings.perCategoryLimit;
     $daysInput.value = STATE.settings.recentDays;
     if ($sortSelect) $sortSelect.value = STATE.settings.sortBy || 'latest';
-    if ($colCountSelect) $colCountSelect.value = String(STATE.settings.ui.colCount || 3);
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($normalizeGroupToggle) $normalizeGroupToggle.checked = !!STATE.settings.ui.normalizeGroupEnabled;
     if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
@@ -836,7 +1050,33 @@ async function init() {
     // 固定高度永遠開啟（移除切換）
 
     // 設定開關
-    $settingsBtn.addEventListener('click', () => { $settingsDialog.showModal(); });
+    $settingsBtn.addEventListener('click', () => {
+        // 每次開啟都以已儲存的分類為準（上次按取消的修改不殘留）
+        if ($categoriesUI) renderCategoriesUI(STATE.settings.categories);
+        $settingsDialog.showModal();
+    });
+
+    // 編輯排版：按鈕切換進入 / 完成，Esc 取消
+    $layoutBtn?.addEventListener('click', () => {
+        if (STATE.layoutDraft) exitLayoutEdit(true); else enterLayoutEdit();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || !STATE.layoutDraft) return;
+        if ($settingsDialog.open || $focusDialog?.open) return;
+        exitLayoutEdit(false);
+    });
+    initLayoutDrag();
+    $layoutWidthGroup?.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-cols]');
+        if (btn) setLayoutWidth(Number(btn.dataset.cols));
+    });
+    $layoutResetBtn?.addEventListener('click', resetLayoutDraft);
+
+    // 橫向捲動提示
+    $gridPrevBtn?.addEventListener('click', () => scrollByTrack(-1));
+    $gridNextBtn?.addEventListener('click', () => scrollByTrack(1));
+    $grid.addEventListener('scroll', updateScrollHints, { passive: true });
+    window.addEventListener('resize', updateScrollHints);
 
     // 語言切換（在設定中）
     $langSelect?.addEventListener('change', (e) => {
@@ -879,39 +1119,34 @@ async function init() {
         if (!inDialog) $settingsDialog.close('cancel');
     });
 
-    // 欄位數即時變更
-    $colCountSelect?.addEventListener('change', (e) => {
-        const n = parseInt(e.target.value || '3', 10);
-        applyColumnCount(n);
-    });
-
     // 分類管理（UI）事件
     $addCategoryBtn?.addEventListener('click', () => {
         const arr = readCategoriesFromUI();
         const keys = new Set(arr.map(c => c.key));
         const key = genUniqueKey('custom', keys);
         arr.push({ key, label: '新分類', enabled: true, matchers: [{ type: 'domain', value: '' }] });
+        OPEN_CAT_KEY = key;
+        setCategoryFilter('all');
         renderCategoriesUI(arr);
+        // 捲到新分類並聚焦名稱
+        const $new = $categoriesUI.querySelector(`.cat[data-key="${key}"]`);
+        $new?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        $new?.querySelector('.cat-label')?.select();
     });
     $resetCategoriesUIButton?.addEventListener('click', () => {
         renderCategoriesUI(defaultCategories());
     });
-    $saveCategoriesUIButton?.addEventListener('click', async () => {
+    $catFilter?.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-filter]');
+        if (btn) setCategoryFilter(btn.dataset.filter);
+    });
+    // 單一儲存：分類設定有誤時擋下關閉，避免無聲丟失
+    $settingsSaveBtn?.addEventListener('click', (e) => {
         try {
-            const arr = readCategoriesFromUI();
-            if (!arr.length) throw new Error('至少需要一個分類');
-            // 驗證唯一 key
-            const set = new Set();
-            for (const c of arr) {
-                if (set.has(c.key)) throw new Error('分類 key 重複：' + c.key);
-                set.add(c.key);
-            }
-            STATE.settings.categories = arr;
-            await saveSettings(STATE.settings);
-            await refreshAndRender();
-            alert('分類已儲存');
+            if ($categoriesUI && !readCategoriesFromUI().length) throw new Error(t('msgCategoryAtLeastOne'));
         } catch (err) {
-            alert('分類設定有誤：' + (err?.message || err));
+            e.preventDefault();
+            alert(t('msgCategoriesError') + (err?.message || err));
         }
     });
 
@@ -931,6 +1166,12 @@ async function init() {
         const catEl = e.target.closest('.cat');
         if (!catEl) return;
         const key = catEl.dataset.key;
+        // 點標題列（非開關 / 按鈕）展開或收合
+        if (e.target.closest('.cat-header') && !e.target.closest('input, button')) {
+            OPEN_CAT_KEY = catEl.classList.contains('open') ? null : key;
+            $categoriesUI.querySelectorAll('.cat').forEach(el => el.classList.toggle('open', el.dataset.key === OPEN_CAT_KEY));
+            return;
+        }
         if (e.target.closest('.add-matcher')) {
             const arr = readCategoriesFromUI();
             const idx = arr.findIndex(c => c.key === key);
@@ -971,7 +1212,6 @@ async function init() {
             const perCategoryLimit = Math.max(3, Math.min(100, parseInt($limitInput.value || 12, 10)));
             const recentDays = Math.max(1, Math.min(365, parseInt($daysInput.value || 60, 10)));
             const sortBy = ($sortSelect?.value === 'smart') ? 'smart' : 'latest';
-            const colCount = Math.max(1, Math.min(4, parseInt($colCountSelect?.value || 3, 10)));
 
 
             // 採用 UI 版本的分類設定
@@ -985,12 +1225,10 @@ async function init() {
             STATE.settings.perCategoryLimit = perCategoryLimit;
             STATE.settings.recentDays = recentDays;
             STATE.settings.sortBy = sortBy;
-            STATE.settings.ui.colCount = colCount;
             if ($normalizeGroupToggle) {
                 STATE.settings.ui.normalizeGroupEnabled = !!$normalizeGroupToggle.checked;
             }
             await saveSettings(STATE.settings);
-            applyColumnCount(colCount);
             await refreshAndRender();
         }
     });
