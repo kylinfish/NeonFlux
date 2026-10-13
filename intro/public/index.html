@@ -12,26 +12,26 @@
   
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://neonflux.web.app/">
+  <meta property="og:url" content="https://neonflux-web.web.app/">
   <meta property="og:title" content="NeonFlux - 智慧分類你的瀏覽記錄">
   <meta property="og:description" content="NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。">
-  <meta property="og:image" content="./screenshots/auto-categorized.png">
+  <meta property="og:image" content="https://neonflux-web.web.app/screenshots/free-layout.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   
   <!-- Additional OG Images for carousel -->
-  <meta property="og:image" content="./screenshots/customized-categories.png">
+  <meta property="og:image" content="https://neonflux-web.web.app/screenshots/customized-categories.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   
-  <meta property="og:image" content="./screenshots/focus-mode.png">
+  <meta property="og:image" content="https://neonflux-web.web.app/screenshots/focus-mode.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   
-  <meta property="og:image" content="./screenshots/curtain&two-column.png">
+  <meta property="og:image" content="https://neonflux-web.web.app/screenshots/curtain&two-column.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
@@ -41,10 +41,10 @@
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://neonflux.web.app/">
+  <meta name="twitter:url" content="https://neonflux-web.web.app/">
   <meta name="twitter:title" content="NeonFlux - 智慧分類你的瀏覽記錄">
   <meta name="twitter:description" content="NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。">
-  <meta name="twitter:image" content="./screenshots/auto-categorized.png">
+  <meta name="twitter:image" content="https://neonflux-web.web.app/screenshots/free-layout.png">
   
   <!-- Additional Meta -->
   <meta name="theme-color" content="#0b0f14">
@@ -225,6 +225,20 @@
       text-align: center;
       margin-bottom: 80px;
       animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-badge {
+      display: inline-block; margin-bottom: 18px; padding: 6px 14px; border-radius: 999px;
+      font-size: 13px; color: var(--text); text-decoration: none;
+      border: 1px solid rgba(124,195,255,0.45); background: rgba(124,195,255,0.12);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .hero-badge:hover { background: rgba(124,195,255,0.2); transform: translateY(-1px); }
+
+    .feature-badge {
+      position: absolute; top: 18px; right: 18px; padding: 3px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+      color: #0b0f14; background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
     }
 
     .hero h2 {
@@ -666,6 +680,7 @@
     <div class="content">
       <!-- Hero Section -->
       <section class="hero">
+        <a class="hero-badge" id="heroBadge" href="./release.html">v1.3 新功能：自由排版 · 5 組主題配色 →</a>
         <h2 id="heroTitle">智慧分類你的瀏覽記錄</h2>
         <p id="heroDesc">NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。</p>
       </section>
@@ -724,73 +739,29 @@
     // Features data
     const featuresData = {
       zh: [
-        {
-          icon: 'tag',
-          title: '自動分類',
-          desc: '根據預設或自訂規則自動將瀏覽記錄分類'
-        },
-        {
-          icon: 'search',
-          title: 'URL 分組切換',
-          desc: '可選擇合併相同路徑（忽略參數），讓瀏覽紀錄更乾淨'
-        },
-        {
-          icon: 'layers',
-          title: '設定面板改版',
-          desc: '全新設定版面與分類編輯器，操作更直覺、更快速'
-        },
-        {
-          icon: 'tag',
-          title: '停用分類保護',
-          desc: '停用分類會淡化並阻擋誤觸，只保留啟用切換'
-        },
-        {
-          icon: 'eye',
-          title: '隱私門簾與聚焦',
-          desc: '支援投影隱私遮罩與單一分類聚焦檢視'
-        },
-        {
-          icon: 'star',
-          title: '評分回饋入口',
-          desc: '頁尾可直接前往 Chrome Web Store 留下 5 星評價'
-        }
+        { icon: 'columns', badge: 'v1.3 NEW', title: '自由排版', desc: '拖曳卡片到任一軌：大分類獨佔一整軌、小分類疊在同一軌；軌道超出畫面時橫向捲動' },
+        { icon: 'palette', badge: 'v1.3 NEW', title: '5 組主題配色', desc: '霓虹流、極光、夜櫻、石墨、抹茶，點一下即預覽，開新分頁不閃爍' },
+        { icon: 'tag', title: '自動分類', desc: '依 domain / prefix / regex 規則自動整理瀏覽記錄，分類可自訂、可篩選' },
+        { icon: 'eye', title: '隱私門簾與聚焦', desc: '投影時一鍵遮住紀錄；單一分類可放大檢視完整清單' },
+        { icon: 'layers', title: '設定備份還原', desc: '分類規則、釘選、排版與主題一次匯出成 JSON，重裝後一鍵還原' },
+        { icon: 'search', title: 'URL 分組切換', desc: '可合併相同路徑（忽略參數），讓瀏覽紀錄更乾淨' }
       ],
       en: [
-        {
-          icon: 'tag',
-          title: 'Auto-Categorize',
-          desc: 'Automatically categorize browsing history by custom rules'
-        },
-        {
-          icon: 'search',
-          title: 'URL Group Toggle',
-          desc: 'Optionally group same-path URLs and ignore query params'
-        },
-        {
-          icon: 'layers',
-          title: 'Settings Redesign',
-          desc: 'Refined settings panel and category editor for faster setup'
-        },
-        {
-          icon: 'tag',
-          title: 'Inactive Guard',
-          desc: 'Disabled categories are dimmed and protected from accidental edits'
-        },
-        {
-          icon: 'eye',
-          title: 'Curtain & Focus',
-          desc: 'Presentation privacy curtain with full-list focus mode'
-        },
-        {
-          icon: 'star',
-          title: 'Rating Entry',
-          desc: 'Quickly jump to Chrome Web Store and leave a 5-star review'
-        }
+        { icon: 'columns', badge: 'v1.3 NEW', title: 'Free Layout', desc: 'Drag cards into any track: give a busy category a whole track, stack small ones, scroll tracks sideways' },
+        { icon: 'palette', badge: 'v1.3 NEW', title: '5 Color Themes', desc: 'Neon Flux, Aurora, Sakura Night, Graphite and Matcha — live preview, no flash on new tabs' },
+        { icon: 'tag', title: 'Auto-Categorize', desc: 'Sort history by domain / prefix / regex rules, with filterable custom categories' },
+        { icon: 'eye', title: 'Curtain & Focus', desc: 'Hide history with one click while presenting; open any category as a full list' },
+        { icon: 'layers', title: 'Backup & Restore', desc: 'Export rules, pins, layout and theme to JSON and restore them after reinstalling' },
+        { icon: 'search', title: 'URL Group Toggle', desc: 'Optionally group same-path URLs and ignore query params' }
       ]
     };
 
     // Screenshots data
     const screenshotsData = [
+      { path: './screenshots/free-layout.png', alt: 'Free layout with tracks' },
+      { path: './screenshots/layout-editing.png', alt: 'Editing the track layout' },
+      { path: './screenshots/themes.png', alt: 'Color themes: Aurora, Sakura Night, Graphite, Matcha' },
+      { path: './screenshots/settings-v1.3.png', alt: 'Settings: theme, layout mode, category manager' },
       { path: './screenshots/auto-categorized.png', alt: 'Auto-categorized' },
       { path: './screenshots/customized-categories.png', alt: 'Customized categories' },
       { path: './screenshots/display-mode-change.png', alt: 'Display mode' },
@@ -803,6 +774,7 @@
     const introI18n = {
       zh: {
         headerSubtitle: '霓虹流',
+        heroBadge: 'v1.3 新功能：自由排版 · 5 組主題配色 →',
         heroTitle: '智慧分類你的瀏覽記錄',
         heroDesc: 'NeonFlux 自動將你的瀏覽記錄按工作流程分類，提升工作效率。隱私優先，所有資料儲存在本機。',
         screenshotsTitle: '功能展示',
@@ -814,6 +786,7 @@
       },
       en: {
         headerSubtitle: 'Neon Flow',
+        heroBadge: "What's new in v1.3: free layout · 5 color themes →",
         heroTitle: 'Categorize Your Browsing History Intelligently',
         heroDesc: 'NeonFlux automatically categorizes your browsing history by workflow, boosting productivity. Privacy-first, all data stored locally.',
         screenshotsTitle: 'Features Showcase',
@@ -842,6 +815,7 @@
       const features = featuresData[currentLang];
       grid.innerHTML = features.map(feature => `
         <div class="feature-card">
+          ${feature.badge ? `<span class="feature-badge">${feature.badge}</span>` : ''}
           <div class="feature-icon">${getSvgIcon(feature.icon)}</div>
           <h3>${feature.title}</h3>
           <p>${feature.desc}</p>
@@ -864,6 +838,8 @@
 
       // Update UI text
       document.getElementById('headerSubtitle').textContent = introI18n[lang].headerSubtitle;
+      document.getElementById('heroBadge').textContent = introI18n[lang].heroBadge;
+      document.getElementById('heroBadge').href = `./release.html?lang=${lang}`;
       document.getElementById('heroTitle').textContent = introI18n[lang].heroTitle;
       document.getElementById('heroDesc').textContent = introI18n[lang].heroDesc;
       document.getElementById('screenshotsTitle').textContent = introI18n[lang].screenshotsTitle;
@@ -911,10 +887,7 @@
     }
 
     function setupButtons() {
-      document.getElementById('ctaStartBtn').addEventListener('click', () => {
-        // Navigate to main app
-        window.location.href = '../newtab.html';
-      });
+      // 「開始使用」由外層 <a> 直接前往 Chrome Web Store
     }
 
     // Lightbox functionality
