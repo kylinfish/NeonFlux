@@ -450,3 +450,7 @@ Explain
 
 # brainstorming visual companion
 .superpowers/
+
+# build output
+dist/
+*.zip

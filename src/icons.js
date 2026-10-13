@@ -1,7 +1,4 @@
-// Icon helper - 使用 SVG 和輕量級 icon service
-// 使用 Feather Icons (輕量級) 或 Heroicons 的 CDN
-
-const ICON_CDN = 'https://cdn.jsdelivr.net/npm/feather-icons@4.29.0/dist/feather.min.js';
+// Icon helper - 內聯 SVG icons（Feather / Bootstrap Icons），不載入任何遠端程式碼
 
 // SVG icons 定義（內聯 SVG）
 const SVG_ICONS = {

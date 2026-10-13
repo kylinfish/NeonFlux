@@ -5,8 +5,7 @@
     "description": "A customizable new tab page that categorizes frequently visited links by workflow with a liquid glass fluid grid UI.",
     "permissions": [
         "history",
-        "storage",
-        "tabs"
+        "storage"
     ],
     "background": {
         "service_worker": "background.js"
