@@ -192,9 +192,10 @@
       .grid {
         --track-w: calc((100% - (var(--col, 3) - 1) * 16px) / var(--col, 3));
         display: flex; gap: 16px; flex: 1 1 auto; min-width: 0; min-height: 0;
-        overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity;
+        overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scrollbar-width: none;
         padding: 6px; margin: -6px; scroll-padding: 6px; /* 預留空間避免裁掉編輯模式外框 */
       }
+      .grid::-webkit-scrollbar { display: none; } /* 隱藏橫向捲軸：靠露出的下一軌 + 左右箭頭 + 觸控板 / Shift+滾輪 */
       .track { flex: 0 0 var(--track-w); display: flex; flex-direction: column; gap: 16px; min-height: 0; position: relative; scroll-snap-align: start; }
       .track > .card { flex: 1 1 0; min-height: 160px; margin: 0; display: flex; flex-direction: column; }
       .track > .card .list-container { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
@@ -316,7 +317,9 @@
         display: grid; 
         gap: 8px; 
         position: relative; 
+        scrollbar-width: none; /* 隱藏卡片清單縱向捲軸（兩種排版皆是），滾輪 / 觸控板照常捲動 */
       }
+      .list::-webkit-scrollbar { display: none; }
       
       /* Privacy curtain */
       .curtain {
