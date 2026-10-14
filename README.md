@@ -3,7 +3,7 @@
 > 自定義歷史紀錄分類的 Chrome Extension  
 > 將瀏覽行為整理成工作流，讓新分頁更聚焦、更可用。
 
-[![Version](https://img.shields.io/badge/version-1.3.1-4ea1ff)](./src/manifest.json)
+[![Version](https://img.shields.io/badge/version-1.3.2-4ea1ff)](./src/manifest.json)
 [![Platform](https://img.shields.io/badge/platform-Chrome-7ce0b4)](https://chromewebstore.google.com/detail/neonflux/npmcfbnpmpiphenjnmlcgacbmdgcpacb)
 [![License](https://img.shields.io/badge/license-Private-ffc86b)](#)
 
